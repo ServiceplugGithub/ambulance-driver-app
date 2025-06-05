@@ -1,9 +1,9 @@
-import { ColorsType } from '@/constants/colors';
-import { fontFamily } from '@/constants/fonts';
-import { useThemeColor } from '@/hooks/useThemeColor';
-import { isEmpty } from 'lodash';
-import React, { JSX, useState } from 'react';
-import { Control, Controller, FieldError, FieldValues } from 'react-hook-form';
+import { ColorsType } from "@/constants/Colors";
+import { fontFamily } from "@/constants/fonts";
+import { useThemeColor } from "@/hooks/useThemeColor";
+import { isEmpty } from "lodash";
+import React, { JSX, useState } from "react";
+import { Control, Controller, FieldError, FieldValues } from "react-hook-form";
 import {
   StyleProp,
   StyleSheet,
@@ -11,8 +11,8 @@ import {
   TextStyle,
   View,
   ViewStyle,
-} from 'react-native';
-import AppText from '../AppText';
+} from "react-native";
+import AppText from "../AppText";
 
 type Props = {
   fieldStyle?: StyleProp<ViewStyle>;
@@ -64,36 +64,46 @@ function TextInputController(props: Props) {
             labelStyles,
             isError && style.errorLabel,
             // !editable && style.disabled,
-          ]}>
+          ]}
+        >
           {label}
         </AppText>
       )}
       <Controller
         control={control}
         name={name}
-
-        render={({ field: { onChange, onBlur, value,ref } }) => (
+        render={({ field: { onChange, onBlur, value, ref } }) => (
           <View
             style={[
               style.inputView,
               inputStyles,
               // isFocused && style.focused,
-            
+
               !editable && style.disabled,
               isFocused && {
-                borderColor: colors.primary
+                borderColor: colors.primary,
               },
               isError && style.errorInput,
-              !editable && style.disabledContainer
-            ]}>
+              !editable && style.disabledContainer,
+            ]}
+          >
             {LeftIcon && LeftIcon}
             {textAffix && (
-              <AppText style={[{ color: colors.secondary, marginRight: 10, fontSize :16 }, textAffixStyle]}>
+              <AppText
+                style={[
+                  { color: colors.secondary, marginRight: 10, fontSize: 16 },
+                  textAffixStyle,
+                ]}
+              >
                 {textAffix}
               </AppText>
             )}
             <TextInput
-              style={[style.inputField, !editable && style.disabledText, textInputStyle]}
+              style={[
+                style.inputField,
+                !editable && style.disabledText,
+                textInputStyle,
+              ]}
               placeholder={placeholder}
               placeholderTextColor={colors.secondaryLight}
               onBlur={() => {
@@ -119,13 +129,13 @@ function TextInputController(props: Props) {
 const styles = (colors: ColorsType) =>
   StyleSheet.create({
     inputView: {
-      flexDirection: 'row',
-      width: '100%',
+      flexDirection: "row",
+      width: "100%",
       borderWidth: 1,
       borderColor: colors.secondaryLight,
       borderRadius: 8,
-      position: 'relative',
-      alignItems: 'center',
+      position: "relative",
+      alignItems: "center",
       paddingHorizontal: 12,
       paddingVertical: 0,
       // height: 48,
@@ -140,7 +150,7 @@ const styles = (colors: ColorsType) =>
       flex: 1,
       color: colors.secondaryDark,
       paddingVertical: 12,
-      fontSize: 16
+      fontSize: 16,
     },
     focused: {
       color: colors.secondary,
@@ -161,14 +171,14 @@ const styles = (colors: ColorsType) =>
       color: colors.secondary,
     },
     disabledContainer: {
-      backgroundColor: '#EAE2F5'
+      backgroundColor: "#EAE2F5",
     },
     errorText: {
       color: colors.danger,
       fontSize: 12,
       fontFamily: fontFamily[500],
       marginTop: 4,
-      marginLeft: 4
+      marginLeft: 4,
       // textAlign: 'right',
     },
   });
