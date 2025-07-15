@@ -1,18 +1,29 @@
 // components/TripLogsSection.tsx
 import { fontFamily } from "@/constants/fonts";
 import { colors } from "@/utils/constants/colors";
+import moment from "moment";
 import React from "react";
 import { ScrollView, StyleSheet, View } from "react-native";
 import AppText from "../AppText";
 
-interface LogItem {
-  id: number;
+interface EventItem {
+  event: string;
+  remarks: string;
   timestamp: string;
+  userId?: string;
+}
+interface LogItem {
+  caseID: number;
+  timestamp: number;
   address: string;
   patients: number;
   duration?: string;
   status: string;
-  caseId: number;
+  ambulanceOrigin: {
+    timestamp: number;
+  };
+  location: string;
+  events: EventItem[];
 }
 
 interface TripLogsSectionProps {
@@ -27,26 +38,39 @@ const TripLogsSection: React.FC<TripLogsSectionProps> = ({ logs }) => {
       </View>
       <ScrollView>
         {logs.map((log) => (
-          <View key={log.id} style={styles.logItem}>
-            <AppText style={styles.case}>#{log.caseId}</AppText>
-            <AppText style={styles.date}>{log.timestamp}</AppText>
+          <View key={log.caseID} style={styles.logItem}>
+            <AppText style={styles.case}>#{log.caseID}</AppText>
+            <AppText style={styles.date}>
+              <AppText style={styles.date}>
+                {moment(log.ambulanceOrigin.timestamp).format(
+                  "DD MMM YYYY • hh:mm A"
+                )}
+              </AppText>{" "}
+            </AppText>
             <AppText>
-              Trip to {log.address} - {log.patients} patient
+              Trip to - {log.location}
               {log.patients > 1 ? "s" : ""}
             </AppText>
-            <AppText style={styles.logText}>
-              <AppText
-                style={{
-                  color:
-                    log.status === "COMPLETED"
-                      ? colors.primary
-                      : colors.red[500],
-                }}
-              >
-                {log.status}
+            {log.events && log.events.length > 0 && (
+              <AppText style={styles.logText}>
+                <AppText
+                  style={{
+                    color:
+                      log.events[log.events.length - 1].event.toUpperCase() ===
+                      "TERMINATED"
+                        ? colors.red[500]
+                        : log.events[
+                            log.events.length - 1
+                          ].event.toUpperCase() === "CASE FINISHED"
+                        ? colors.green[500]
+                        : colors.yellow[600],
+                    fontWeight: "bold",
+                  }}
+                >
+                  {log.events[log.events.length - 1].event.toUpperCase()}
+                </AppText>
               </AppText>
-              {log.duration ? ` - ${log.duration}` : null}
-            </AppText>
+            )}
           </View>
         ))}
       </ScrollView>

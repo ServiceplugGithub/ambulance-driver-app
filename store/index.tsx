@@ -1,12 +1,12 @@
 import { configureStore } from "@reduxjs/toolkit";
-// import reportAccidentReducer from "./caseReported/index";
 import loginReducer from "../store/login/index";
 import profileReducer from "../store/profileSection/index";
+import reportedCasesReducer from "./caseReported/index";
 
 export const store = configureStore({
   reducer: {
     login: loginReducer,
-    // reportAccident: reportAccidentReducer,
+    reportedCases: reportedCasesReducer,
     profile: profileReducer,
   },
 });
