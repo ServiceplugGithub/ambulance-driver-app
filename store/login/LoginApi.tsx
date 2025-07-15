@@ -1,9 +1,6 @@
-// src/redux/api/authApi.ts
-
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 
-// Base URL
 const BASE_URL = "https://emsplug.com/api";
 
 interface LoginParams {
@@ -13,11 +10,12 @@ interface LoginParams {
 }
 
 interface LoginResponse {
-  result: any;
+  token: string;
+  user: any;
 }
 
 export const loginUserApi = createAsyncThunk<
-  any,
+  LoginResponse,
   LoginParams,
   { rejectValue: string }
 >("auth/loginUserApi", async (params, thunkApi) => {
@@ -26,12 +24,11 @@ export const loginUserApi = createAsyncThunk<
       `${BASE_URL}/auth/login`,
       params
     );
-
-    if (response.data?.result) {
-      return response.data.result;
+    if (response.data?.token && response.data?.user) {
+      return response.data;
     }
 
-    return thunkApi.rejectWithValue("Login failed. Please try again.");
+    return thunkApi.rejectWithValue("Login failed. Invalid credentials.");
   } catch (error: any) {
     return thunkApi.rejectWithValue(
       error?.response?.data?.message || "Network error during login."

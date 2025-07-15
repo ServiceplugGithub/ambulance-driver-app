@@ -23,16 +23,20 @@ import { blurhash } from "@/constants/common";
 import { fontFamily } from "@/constants/fonts";
 import { FormInputType } from "@/enums/form-input.enum";
 import { useThemeColor } from "@/hooks/useThemeColor";
+import { loginUserApi } from "@/store/login/LoginApi";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useRouter } from "expo-router";
+import Toast from "react-native-toast-message";
 import { useDispatch } from "react-redux";
 
 const schema = z.object({
-  email: z.string().min(10, { message: "Required" }),
+  email: z.string().email({ message: "Enter a valid email address" }),
+
   password: z
     .string()
-    .min(10, { message: "Required" })
-    .max(10, { message: "password cannot exceed 12 characters" })
-    .regex(/^\d+$/, { message: "password must be 8 characters" }),
+    .min(5, { message: "Password must be at least 5 digits" })
+    .regex(/^\d+$/, { message: "Password must contain only numbers" }),
+
   usertype: z.literal("driver"),
 });
 
@@ -64,37 +68,30 @@ const SendOtpScreen = () => {
 
   const dispatch = useDispatch<any>();
 
-  // const onSubmit = async (data: {
-  //   email: string;
-  //   password: string;
-  //   usertype: 'driver';
-  // }) => {
-  //   try {
-  //     setLoading(true);
-  //     const resultAction = await dispatch(loginUserApi(data));
+  const onSubmit = async (data: FormData) => {
+    try {
+      setLoading(true);
+      const result = await dispatch(loginUserApi(data)).unwrap();
 
-  //     if (loginUserApi.fulfilled.match(resultAction)) {
-  //       Toast.show({
-  //         type: "success",
-  //         text1: "Login successful",
-  //       });
+      await AsyncStorage.setItem("token", result.token);
+      await AsyncStorage.setItem("userId", result.user._id);
 
-  //       router.navigate("/home/home");
-  //     } else {
-  //       Toast.show({
-  //         type: "error",
-  //         text1: resultAction.payload || "Login failed. Please try again.",
-  //       });
-  //     }
-  //   } catch (error) {
-  //     Toast.show({
-  //       type: "error",
-  //       text1: "Unexpected error. Please try again.",
-  //     });
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
+      Toast.show({
+        type: "success",
+        text1: "Login successful",
+      });
+
+      router.navigate("/home/home");
+    } catch (error) {
+      Toast.show({
+        type: "error",
+        text1:
+          typeof error === "string" ? error : "Login failed. Please try again.",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const onBtPolicy = () => {
     router.navigate({ pathname: "/policy/privacy" });
@@ -191,7 +188,9 @@ const SendOtpScreen = () => {
             <CustomButton
               containerStyle={{ marginTop: 32 }}
               label="Login"
-              onPress={() => router.navigate("/home/home")}
+              onPress={() => {
+                handleSubmit(onSubmit)();
+              }}
               // disabled={!isValid || isEmpty(dirtyFields)}
               loading={loading}
             />

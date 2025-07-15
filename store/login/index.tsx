@@ -1,52 +1,55 @@
-import { createSlice } from "@reduxjs/toolkit";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { loginUserApi } from "./LoginApi";
 
 interface User {
-  id: string;
+  _id: string;
   name: string;
   email: string;
+  role: string;
+  [key: string]: any;
 }
 
-interface AuthState {
+interface LoginState {
+  token: string;
   user: User | null;
-  token: string | null;
-  loading: boolean;
-  error: string | null;
+  isLoggedIn: boolean;
 }
 
-const initialState: AuthState = {
+const initialState: LoginState = {
+  token: "",
   user: null,
-  token: null,
-  loading: false,
-  error: null,
+  isLoggedIn: false,
 };
 
-const authSlice = createSlice({
-  name: "auth",
+const loginSlice = createSlice({
+  name: "login",
   initialState,
   reducers: {
     logout: (state) => {
+      state.token = "";
       state.user = null;
-      state.token = null;
+      state.isLoggedIn = false;
+      AsyncStorage.removeItem("token");
+      AsyncStorage.removeItem("userId");
     },
   },
   extraReducers: (builder) => {
-    builder
-      .addCase(loginUserApi.pending, (state) => {
-        state.loading = true;
-        state.error = null;
-      })
-      .addCase(loginUserApi.fulfilled, (state, action) => {
-        state.loading = false;
-        state.user = action.payload.user;
-        state.token = action.payload.token;
-      })
-      .addCase(loginUserApi.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload || "Something went wrong";
-      });
+    builder.addCase(
+      loginUserApi.fulfilled,
+      (state, action: PayloadAction<any>) => {
+        const { token, user } = action.payload;
+
+        state.token = token;
+        state.user = user;
+        state.isLoggedIn = true;
+
+        AsyncStorage.setItem("token", token);
+        AsyncStorage.setItem("userId", user._id);
+      }
+    );
   },
 });
 
-export const { logout } = authSlice.actions;
-export default authSlice.reducer;
+export const { logout } = loginSlice.actions;
+export default loginSlice.reducer;

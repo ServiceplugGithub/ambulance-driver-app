@@ -133,6 +133,28 @@ const Dashboard: React.FC<DashboardProps> = () => {
     updateStatus();
   }, [isEnabled]);
 
+  // const reportedAccidentList = useSelector(
+  //   (state: RootState) => state.reportAccident.reportedAccidentList
+  // );
+
+  // useEffect(() => {
+  //   (async () => {
+  //     try {
+  //       const driverId = await getDeviceId();
+  //       const token = await AsyncStorage.getItem("token");
+
+  //       if (!token) {
+  //         console.error("❌ Access token not found");
+  //         return;
+  //       }
+
+  //       dispatch(reportedCaseListApi({ driverId, token }));
+  //     } catch (err) {
+  //       console.error("❌ Unexpected error while fetching data:", err);
+  //     }
+  //   })();
+  // }, []);
+
   return (
     <>
       <View style={styles.container}>
