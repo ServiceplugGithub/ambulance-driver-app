@@ -1,10 +1,30 @@
 import AppText from "@/components/AppText";
 import BackButton from "@/components/back-button/index";
 import { fontFamily } from "@/constants/fonts";
+import { RootState } from "@/store";
+import { getUserProfileApi } from "@/store/profileSection/ProfileSectionApi";
 import { colors } from "@/utils/constants/colors";
+import { useEffect } from "react";
 import { Dimensions, Image, ScrollView, StyleSheet, View } from "react-native";
+import { ActivityIndicator } from "react-native-paper";
+import { Text } from "react-native-svg";
+import { useDispatch, useSelector } from "react-redux";
 
 const ProfileSection = () => {
+  const dispatch = useDispatch<any>();
+  const {
+    data: profile,
+    loading,
+    error,
+  } = useSelector((state: RootState) => state.profile);
+
+  useEffect(() => {
+    dispatch(getUserProfileApi());
+  }, []);
+
+  if (loading) return <ActivityIndicator />;
+  if (error) return <Text>{error}</Text>;
+  if (!profile) return <Text>No profile data found</Text>;
   return (
     <View style={styles.headerSection}>
       <ScrollView>
@@ -21,28 +41,28 @@ const ProfileSection = () => {
             </View>
             <View style={styles.detailBox}>
               <AppText style={styles.profileText}> PROFILE</AppText>
-              <AppText style={styles.text}>RAKESH TIWARI</AppText>
-              <AppText>RakeshTiwar@gamil.com</AppText>
+              <AppText style={styles.text}>{profile.name}</AppText>
+              <AppText>{profile.email}</AppText>
               <AppText>+91 9876543210</AppText>
-              <AppText style={styles.ID}>ID- 8529652856</AppText>
+              <AppText style={styles.ID}>ID- {profile._id}</AppText>
             </View>
             <View style={styles.detailBox2}>
               <AppText style={styles.detailText}>HOSPITAL DETAILS</AppText>
-              <AppText style={styles.text}>BANGALORE HOSPITAL</AppText>
-              <AppText>Hospital Code - 94562195</AppText>
+              <AppText style={styles.text}>{profile.hospital.name}</AppText>
+              <AppText>Hospital Code - {profile.hospital.code}</AppText>
               <AppText>Hospital Office - +91 9876543210</AppText>
-              <AppText style={styles.ID}>
-                404, P&T Colony, RT Nager, Karnataka - 500081
-              </AppText>
+              <AppText style={styles.ID}>{profile.hospital.address}</AppText>
             </View>
             <View style={styles.detailBox2}>
               <AppText style={styles.detailText}>VECHILE DETAILS</AppText>
-              <AppText style={styles.text}>KA00AA8585</AppText>
-              <AppText>Type C - Advanced Life Support</AppText>
-              <AppText>Vehicle Insurance Expiry - 05/02/2028 </AppText>
-              <AppText>Oxygen Availability - Yes</AppText>
+              <AppText style={styles.text}>
+                {profile.ambulanceID.rcNumber}
+              </AppText>
+              <AppText>{profile.ambulanceID.name}</AppText>
+              <AppText>{profile.ambulanceID.vehicleType} </AppText>
+              {/* <AppText>Oxygen Availability - Yes</AppText>
               <AppText>Defibrillator Equipped - Yes </AppText>
-              <AppText style={styles.ID}>GPS Tracking ID - 8975418</AppText>
+              <AppText style={styles.ID}>GPS Tracking ID - 8975418</AppText> */}
             </View>
             <View style={styles.detailBox3}>
               <AppText style={styles.warningText}>
@@ -129,6 +149,8 @@ const styles = StyleSheet.create({
   },
   ID: {
     color: colors.primary,
+    marginHorizontal: 50,
+    justifyContent: "center",
   },
   detailBox2: {
     marginTop: 5,
