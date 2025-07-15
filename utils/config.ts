@@ -1,11 +1,9 @@
-import { FirebaseEvent } from "./../enums/firebase-event.enum";
-import * as SecureStore from "expo-secure-store";
-import { v4 as uuidv4 } from "uuid";
-import "react-native-get-random-values";
-import { setSecureStorage, setStorage } from "./storage";
 import { localStorageKey, secureStorageKey } from "@/constants/common";
+import * as SecureStore from "expo-secure-store";
+import "react-native-get-random-values";
+import { v4 as uuidv4 } from "uuid";
 import axiosInstance from "./axios-instance";
-import analytics from "@react-native-firebase/analytics";
+import { setSecureStorage, setStorage } from "./storage";
 
 export const getDeviceId = async () => {
   let deviceId = await SecureStore.getItemAsync(secureStorageKey.deviceId);
@@ -26,6 +24,4 @@ export const setSession = async (accessToken: string) => {
   }
 };
 
-export const logEvent = async (eventName: (typeof FirebaseEvent)[keyof typeof FirebaseEvent], eventParams: any) => {
-  await analytics().logEvent(eventName, eventParams);
-};
+

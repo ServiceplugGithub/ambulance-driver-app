@@ -5,10 +5,12 @@ import HeaderSection from "@/components/Header";
 import TripDecisionModal from "@/components/Modal/NewTrip";
 import StepTracker from "@/components/step-indicator";
 import TripLogsSection from "@/components/trip-logs/index";
+import { changeVehicleAvailabilityApi } from "@/store/toogleButton/ToogleButtonApi";
+import { getDeviceId } from "@/utils/config";
 import { colors } from "@/utils/constants/colors";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import {
   Dimensions,
   Image,
@@ -18,6 +20,7 @@ import {
   View,
 } from "react-native";
 import { IconButton } from "react-native-paper";
+import { useDispatch } from "react-redux";
 
 const screenWidth = Dimensions.get("window").width;
 const data = {
@@ -114,6 +117,21 @@ const Dashboard: React.FC<DashboardProps> = () => {
 
   const [modalVisible, setModalVisible] = useState(false);
   const [isEnabled, setIsEnabled] = useState(false);
+  const dispatch = useDispatch<any>();
+
+  useEffect(() => {
+    const updateStatus = async () => {
+      const deviceId = await getDeviceId();
+      await dispatch(
+        changeVehicleAvailabilityApi({
+          driverId: deviceId,
+          status: isEnabled,
+        })
+      );
+    };
+
+    updateStatus();
+  }, [isEnabled]);
 
   return (
     <>
