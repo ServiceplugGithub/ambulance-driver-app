@@ -18,25 +18,22 @@ import AppScreen from "@/components/AppScreen";
 import HeadingSubtitle from "@/components/auth/HeadingSubtitle";
 import CustomButton from "@/components/custom-button/CustomButton";
 import Logo from "@/components/Logo";
+import { ColorsType } from "@/constants/Colors";
 import { blurhash } from "@/constants/common";
 import { fontFamily } from "@/constants/fonts";
 import { FormInputType } from "@/enums/form-input.enum";
 import { useThemeColor } from "@/hooks/useThemeColor";
 import { useRouter } from "expo-router";
-// import { useAuthStore } from '@/stores/auth.store';
-import { ColorsType } from "@/constants/Colors";
+import { useDispatch } from "react-redux";
 
 const schema = z.object({
-  phoneNumber: z
-    .string()
-    .min(10, { message: "Required" })
-    .max(10, { message: "Phone number cannot exceed 10 digits" })
-    .regex(/^\d+$/, { message: "Phone number must be numeric" }),
+  email: z.string().min(10, { message: "Required" }),
   password: z
     .string()
     .min(10, { message: "Required" })
     .max(10, { message: "password cannot exceed 12 characters" })
     .regex(/^\d+$/, { message: "password must be 8 characters" }),
+  usertype: z.literal("driver"),
 });
 
 type FormData = z.infer<typeof schema>;
@@ -49,9 +46,6 @@ const SendOtpScreen = () => {
 
   const [loading, setLoading] = useState(false);
 
-  // store
-  // const sendOtp = useAuthStore(state => state.sendOtp);
-
   const {
     control,
     handleSubmit,
@@ -62,31 +56,45 @@ const SendOtpScreen = () => {
     resolver: zodResolver(schema),
     reValidateMode: "onChange",
     defaultValues: {
-      phoneNumber: "",
+      email: "",
       password: "",
+      usertype: "driver",
     },
   });
 
-  const onSubmit = async (data: any) => {
-    // try {
-    //   Keyboard.dismiss();
-    //   setLoading(true);
-    //   router.navigate({ pathname: "/home/home" });
-    // } catch (err: any) {
-    //   console.log("asdfkadjgldf", err);
-    //   const errMsg = getErrorMessage(err);
-    //   if (err?.data?.errCode === ErrorCode.USER_NOT_FOUND) {
-    //     router.navigate({ pathname: "/home/home" });
-    //   } else {
-    //     Toast.show({
-    //       type: "error",
-    //       text1: errMsg,
-    //     });
-    //   }
-    // } finally {
-    //   setLoading(false);
-    // }
-  };
+  const dispatch = useDispatch<any>();
+
+  // const onSubmit = async (data: {
+  //   email: string;
+  //   password: string;
+  //   usertype: 'driver';
+  // }) => {
+  //   try {
+  //     setLoading(true);
+  //     const resultAction = await dispatch(loginUserApi(data));
+
+  //     if (loginUserApi.fulfilled.match(resultAction)) {
+  //       Toast.show({
+  //         type: "success",
+  //         text1: "Login successful",
+  //       });
+
+  //       router.navigate("/home/home");
+  //     } else {
+  //       Toast.show({
+  //         type: "error",
+  //         text1: resultAction.payload || "Login failed. Please try again.",
+  //       });
+  //     }
+  //   } catch (error) {
+  //     Toast.show({
+  //       type: "error",
+  //       text1: "Unexpected error. Please try again.",
+  //     });
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
 
   const onBtPolicy = () => {
     router.navigate({ pathname: "/policy/privacy" });
@@ -128,7 +136,7 @@ const SendOtpScreen = () => {
             <RenderFormElement
               formInputType={FormInputType.input}
               control={control}
-              name="phoneNumber"
+              name="email"
               placeholder="Enter Username"
               autoCapitalize="none"
               keyboardType="default"
@@ -146,7 +154,7 @@ const SendOtpScreen = () => {
                 const allowedRegex = /^[a-zA-Z0-9@'.]*$/;
 
                 if (allowedRegex.test(value)) {
-                  setValue("phoneNumber", value, {
+                  setValue("email", value, {
                     shouldValidate: true,
                     shouldDirty: true,
                   });
@@ -160,7 +168,7 @@ const SendOtpScreen = () => {
                 name="password"
                 placeholder="Enter Password"
                 autoCapitalize="none"
-                secureTextEntry={true} // Hides the text input
+                secureTextEntry={true}
                 keyboardType="default"
                 textInputStyle={{
                   letterSpacing: 1.2,
@@ -183,7 +191,7 @@ const SendOtpScreen = () => {
             <CustomButton
               containerStyle={{ marginTop: 32 }}
               label="Login"
-              onPress={() => router.navigate({ pathname: "/home/home" })}
+              onPress={() => router.navigate("/home/home")}
               // disabled={!isValid || isEmpty(dirtyFields)}
               loading={loading}
             />
@@ -228,7 +236,6 @@ const styles = (color: ColorsType) =>
       flexGrow: 1,
     },
     fieldContainer: { width: "100%", flex: 1 },
-
     image: { width: "100%", height: 280 },
     centerView: {
       flexDirection: "row",

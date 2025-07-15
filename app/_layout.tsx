@@ -9,8 +9,10 @@ import { Inter } from "@/constants/fonts";
 import { useColorScheme } from "@/hooks/useColorScheme";
 import { getStorage } from "@/utils/storage";
 // import { getAnalytics } from '@react-native-firebase/analytics';
+import { store } from "@/store";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import Toast from "react-native-toast-message";
+import { Provider } from "react-redux";
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
@@ -51,7 +53,6 @@ export default function RootLayout() {
   useEffect(() => {
     if (loaded) {
       initApp();
-      // SplashScreen.hideAsync();
     }
   }, [loaded]);
 
@@ -103,9 +104,11 @@ export default function RootLayout() {
   };
 
   return (
-    <SafeAreaProvider>
-      {isAuthenticated ? protectedRoute() : authRoute()}
-      <Toast position="bottom" bottomOffset={20} />
-    </SafeAreaProvider>
+    <Provider store={store}>
+      <SafeAreaProvider>
+        {isAuthenticated ? protectedRoute() : authRoute()}
+        <Toast position="bottom" bottomOffset={20} />
+      </SafeAreaProvider>
+    </Provider>
   );
 }
