@@ -154,6 +154,8 @@ const Dashboard: React.FC<DashboardProps> = () => {
   if (loading) return <AppText>Loading...</AppText>;
   if (error) return <AppText>{error}</AppText>;
 
+  console.log(cases);
+
   return (
     <>
       <View style={styles.container}>
@@ -179,11 +181,7 @@ const Dashboard: React.FC<DashboardProps> = () => {
             />
           </View>
         </View>
-        <WeeklyReportChart
-          todayTrips={Today}
-          totalTrips={Total}
-          data={[4, 6, 3, 5, 2, 7, 1]}
-        />
+        <WeeklyReportChart data={cases} />
         <StepTracker
           currentStep={currentStep}
           labels={stepLabels}
