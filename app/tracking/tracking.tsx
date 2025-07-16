@@ -4,14 +4,10 @@ import StepDecisionModal from "@/components/Modal/steperModal";
 import StepTracker from "@/components/step-indicator";
 import { fontFamily } from "@/constants/fonts";
 import { colors } from "@/utils/constants/colors";
+import * as Location from "expo-location";
 import React, { useEffect, useMemo, useState } from "react";
-import {
-  Image,
-  ScrollView,
-  StyleSheet,
-  TouchableOpacity,
-  View,
-} from "react-native";
+import { ScrollView, StyleSheet, TouchableOpacity, View } from "react-native";
+import MapView, { Marker } from "react-native-maps";
 
 const data = {
   case_accepted_at: "2024-05-01T10:00:00",
@@ -22,6 +18,29 @@ const data = {
 };
 
 const TrackingSection = () => {
+  const [currentLocation, setCurrentLocation] = useState<{
+    latitude: number;
+    longitude: number;
+  } | null>(null);
+
+  useEffect(() => {
+    const getLiveLocation = async () => {
+      const { status } = await Location.requestForegroundPermissionsAsync();
+      if (status !== "granted") {
+        console.warn("Location permission not granted");
+        return;
+      }
+
+      const location = await Location.getCurrentPositionAsync({});
+      setCurrentLocation({
+        latitude: location.coords.latitude,
+        longitude: location.coords.longitude,
+      });
+    };
+
+    getLiveLocation();
+  }, []);
+
   const stepLabels = useMemo(
     () => [
       "Reported",
@@ -68,10 +87,24 @@ const TrackingSection = () => {
       <View>
         <View style={styles.mapSection}>
           <AppText style={styles.headerText}>Location</AppText>
-          <Image
-            source={require("../../utils/images/beach.jpg")}
-            style={styles.image}
-          />
+          {currentLocation && (
+            <MapView
+              style={styles.map}
+              region={{
+                latitude: currentLocation.latitude,
+                longitude: currentLocation.longitude,
+                latitudeDelta: 0.01,
+                longitudeDelta: 0.01,
+              }}
+              showsUserLocation={true}
+            >
+              <Marker
+                coordinate={currentLocation}
+                title="Ambulance"
+                description="Your current location"
+              />
+            </MapView>
+          )}
         </View>
       </View>
       <ScrollView>
@@ -185,5 +218,10 @@ const styles = StyleSheet.create({
   },
   addText: {
     paddingHorizontal: 10,
+  },
+  map: {
+    width: "100%",
+    height: 350,
+    borderRadius: 10,
   },
 });

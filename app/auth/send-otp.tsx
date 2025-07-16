@@ -23,6 +23,7 @@ import { blurhash } from "@/constants/common";
 import { fontFamily } from "@/constants/fonts";
 import { FormInputType } from "@/enums/form-input.enum";
 import { useThemeColor } from "@/hooks/useThemeColor";
+import { startBackgroundLocation } from "@/store/location/Location";
 import { loginUserApi } from "@/store/login/LoginApi";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useRouter } from "expo-router";
@@ -80,8 +81,8 @@ const SendOtpScreen = () => {
         type: "success",
         text1: "Login successful",
       });
-
-      router.navigate("/home/home");
+      await startBackgroundLocation();
+      router.navigate("/location-prompt");
     } catch (error) {
       Toast.show({
         type: "error",

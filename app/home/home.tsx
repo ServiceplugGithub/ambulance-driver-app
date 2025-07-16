@@ -3,27 +3,25 @@
 import AppText from "@/components/AppText";
 import WeeklyReportChart from "@/components/bar-chart/index";
 import HeaderSection from "@/components/Header";
+import { startLiveLocationTracking } from "@/components/live-tracker";
 import TripDecisionModal from "@/components/Modal/NewTrip";
 import StepTracker from "@/components/step-indicator";
 import TripLogsSection from "@/components/trip-logs/index";
 import { getReportedCasesApi } from "@/store/caseReported/CaseReportedApi";
+import { startBackgroundLocation } from "@/store/location/Location";
 import { changeVehicleAvailabilityApi } from "@/store/toogleButton/ToogleButtonApi";
 import { getDeviceId } from "@/utils/config";
 import { colors } from "@/utils/constants/colors";
+import { createSocket } from "@/utils/socket/socket";
+import { getStorage } from "@/utils/storage";
 import { Ionicons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { router } from "expo-router";
 import React, { useEffect, useMemo, useState } from "react";
-import {
-  Dimensions,
-  Image,
-  StyleSheet,
-  Switch,
-  TouchableOpacity,
-  View,
-} from "react-native";
+import { Dimensions, Image, StyleSheet, Switch, View } from "react-native";
 import { IconButton } from "react-native-paper";
 import { useDispatch, useSelector } from "react-redux";
+import { Socket } from "socket.io-client";
 
 const screenWidth = Dimensions.get("window").width;
 const data = {
@@ -37,6 +35,7 @@ const data = {
 interface DashboardProps {}
 
 const Dashboard: React.FC<DashboardProps> = () => {
+  const [socket_io, setSocket] = useState<Socket | null>(null);
   const stepLabels = useMemo(
     () => [
       "Reported",
@@ -72,51 +71,44 @@ const Dashboard: React.FC<DashboardProps> = () => {
   const Today = 4;
   const Total = 28;
 
-  // const logs = [
-  //   {
-  //     id: 1,
-  //     timestamp: "May 22, 2025 | 14:42",
-  //     address: "RT Nagar, Karnataka 500081",
-  //     patients: 2,
-  //     duration: "18 min",
-  //     status: "COMPLETED",
-  //     caseId: 87524446845223668,
-  //   },
-  //   {
-  //     id: 2,
-  //     timestamp: "May 23, 2025 | 13:10",
-  //     address: "MG Road, Karnataka 500078",
-  //     patients: 1,
-  //     status: "CANCELLED",
-  //     caseId: 76855445586823412,
-  //   },
-  //   {
-  //     id: 3,
-  //     timestamp: "May 28, 2025 | 19:30",
-  //     address: "Indiranagar, Karnataka 500082",
-  //     patients: 3,
-  //     duration: "25 min",
-  //     status: "COMPLETED",
-  //     caseId: 67235466452311234,
-  //   },
-  //   {
-  //     id: 4,
-  //     timestamp: "May 25, 2025 | 18:30",
-  //     address: "Indiranagar, Karnataka 500082",
-  //     patients: 3,
-  //     status: "CANCELLED",
-  //     caseId: 67235466452311234,
-  //   },
-  //   {
-  //     id: 5,
-  //     timestamp: "May 31, 2025 | 21:30",
-  //     address: "Indiranagar, Karnataka 500082",
-  //     patients: 3,
-  //     duration: "20 min",
-  //     status: "COMPLETED",
-  //     caseId: 67235466452311234,
-  //   },
-  // ];
+  const [currentLocation, setCurrentLocation] = useState<{
+    latitude: number;
+    longitude: number;
+  } | null>(null);
+
+  useEffect(() => {
+    const setupSocket = async () => {
+      const newSocket = await createSocket();
+      setSocket(newSocket);
+
+      newSocket.on("connect", () => {
+        console.log("✅ Connected with ID:", newSocket.id);
+        newSocket.emit("register", {
+          type: "driver",
+          id: "6853f0bf2fd5e36814c9cb5f",
+        });
+
+        startLiveLocationTracking(newSocket, setCurrentLocation);
+        startBackgroundLocation(newSocket);
+      });
+
+      newSocket.on("disconnect", () => {
+        console.log("Disconnected");
+      });
+
+      newSocket.off("case_assigned");
+      newSocket.on("case_assigned", (data) => {
+        console.log("New Case Assigned:", data);
+        setModalVisible(true);
+      });
+    };
+
+    setupSocket();
+
+    return () => {
+      if (socket_io) socket_io.disconnect();
+    };
+  }, []);
 
   const [modalVisible, setModalVisible] = useState(false);
   const [isEnabled, setIsEnabled] = useState(false);
@@ -127,8 +119,8 @@ const Dashboard: React.FC<DashboardProps> = () => {
       const deviceId = await getDeviceId();
       await dispatch(
         changeVehicleAvailabilityApi({
-          driverId: deviceId,
-          status: isEnabled,
+          driverId: "6853f0bf2fd5e36814c9cb5f",
+          status: true,
         })
       );
     };
@@ -149,6 +141,14 @@ const Dashboard: React.FC<DashboardProps> = () => {
 
   useEffect(() => {
     dispatch(getReportedCasesApi());
+
+    const fetchData = async () => {
+      const locationString = (await getStorage("user_location_info")) as string;
+      const location = JSON.parse(locationString);
+      console.log("Stored Location:", location);
+    };
+
+    fetchData();
   }, []);
 
   if (loading) return <AppText>Loading...</AppText>;
@@ -159,12 +159,10 @@ const Dashboard: React.FC<DashboardProps> = () => {
       <View style={styles.container}>
         <HeaderSection title="p" />
         <View style={styles.innerContainer}>
-          <TouchableOpacity onPress={() => setModalVisible(true)}>
-            <Image
-              style={styles.Sp}
-              source={require("../../utils/images/Group_134.jpg")}
-            />
-          </TouchableOpacity>
+          <Image
+            style={styles.Sp}
+            source={require("../../utils/images/Group_134.jpg")}
+          />
           <Switch
             value={isEnabled}
             onValueChange={setIsEnabled}

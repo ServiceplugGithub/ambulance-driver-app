@@ -26,7 +26,7 @@ const TripDecisionModal: React.FC<TripDecisionModalProps> = ({
 }) => {
   const handleAccept = () => {
     onAccept();
-    router.navigate("/screens/tracking");
+    router.navigate("/tracking/tracking");
   };
 
   return (
