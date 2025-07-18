@@ -7,8 +7,8 @@ import { startLiveLocationTracking } from "@/components/live-tracker";
 import TripDecisionModal from "@/components/Modal/NewTrip";
 import StepTracker from "@/components/step-indicator";
 import TripLogsSection from "@/components/trip-logs/index";
+import { RootState } from "@/store";
 import { setAssignedCase } from "@/store/assignedCaseData";
-import { getReportedCasesApi } from "@/store/caseReported/CaseReportedApi";
 import { startBackgroundLocation } from "@/store/location/Location";
 import { changeVehicleAvailabilityApi } from "@/store/toogleButton/ToogleButtonApi";
 import { getDeviceId } from "@/utils/config";
@@ -18,7 +18,7 @@ import { getStorage } from "@/utils/storage";
 import { Ionicons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { router } from "expo-router";
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import {
   Dimensions,
   Image,
@@ -43,7 +43,7 @@ const data = {
 interface DashboardProps {}
 
 const Dashboard: React.FC<DashboardProps> = () => {
-  const [socket_io, setSocket] = useState<Socket | null>(null);
+  const socketRef = useRef<Socket | null>(null);
   const stepLabels = useMemo(
     () => [
       "Reported",
@@ -57,25 +57,38 @@ const Dashboard: React.FC<DashboardProps> = () => {
 
   const [list, setList] = useState("");
 
-  const labels = [
-    "Reported",
-    "Assigned",
-    "Departed",
-    "Arrived at Location",
-    "Reached Hospital",
+  const stepEventMap = [
+    "reported",
+    "ambulance assigned",
+    "ambulance dispatched",
+    "reached patient",
+    "reached hospital",
   ];
 
-  const getCurrentStep = (data: any): number => {
-    if (!data) return -1;
-    if (data?.ambulance_arrived_to_hospital_at) return 4;
-    if (data?.ambulance_arrived_at) return 3;
-    if (data?.ambulance_departed_for_patient_at) return 2;
-    if (data?.ambulance_assigned) return 1;
-    if (data?.case_accepted_at) return 0;
-    return -1;
+  const getCurrentStepFromEvents = (events: any[]): number => {
+    if (!events || events.length === 0) return -1;
+
+    const latestEventIndex = [...events]
+      .reverse()
+      .findIndex((e) => stepEventMap.includes(e.event));
+
+    if (latestEventIndex === -1) return -1;
+
+    const matchingEvent = events[events.length - 1 - latestEventIndex];
+    const stepIndex = stepEventMap.indexOf(matchingEvent.event);
+    return stepIndex;
   };
 
-  const currentStep = useMemo(() => getCurrentStep(data), [data]);
+  const { cases, loading, error } = useSelector(
+    (state: any) => state.reportedCases
+  );
+
+  const currentStep = useMemo(() => {
+    if (!cases || cases.length === 0) return -1;
+    const events = cases[0]?.events || [];
+    return getCurrentStepFromEvents(events);
+  }, [cases]);
+
   const Today = 4;
   const Total = 28;
 
@@ -84,12 +97,34 @@ const Dashboard: React.FC<DashboardProps> = () => {
     longitude: number;
   } | null>(null);
 
+  const assignedCase = useSelector(
+    (state: RootState) => state.assignedCase.data
+  );
+
+  const [stepTrackers, setStepTracker] = useState(false);
+
+  const stepTracker = () => {
+    if (assignedCase?.active) {
+      const lastEvent = cases?.[0]?.events?.[cases[0].events.length - 1]?.event;
+      const isActiveCase =
+        lastEvent !== "case finished" && lastEvent !== "case terminated";
+      setStepTracker(isActiveCase);
+    } else {
+      setStepTracker(false);
+    }
+  };
+
+  useEffect(() => {
+    stepTracker();
+  }, [assignedCase, cases]);
+
   const [modalData, setModalData] = useState("");
 
   useEffect(() => {
+    let isMounted = true;
     const setupSocket = async () => {
       const newSocket = await createSocket();
-      setSocket(newSocket);
+      socketRef.current = newSocket;
 
       newSocket.on("connect", () => {
         console.log("✅ Connected with ID:", newSocket.id);
@@ -109,6 +144,7 @@ const Dashboard: React.FC<DashboardProps> = () => {
       newSocket.off("case_assigned");
       newSocket.on("case_assigned", (data) => {
         // console.log("New Case Assigned:", data);
+        if (!isMounted) return;
         setModalVisible(true);
         setModalData(data);
         dispatch(setAssignedCase(data));
@@ -118,7 +154,11 @@ const Dashboard: React.FC<DashboardProps> = () => {
     setupSocket();
 
     return () => {
-      if (socket_io) socket_io.disconnect();
+      isMounted = false;
+      if (socketRef.current) {
+        socketRef.current.disconnect();
+        socketRef.current = null;
+      }
     };
   }, []);
 
@@ -139,6 +179,7 @@ const Dashboard: React.FC<DashboardProps> = () => {
 
     updateStatus();
   }, [isEnabled]);
+
   useEffect(() => {
     const updateStatus = async () => {
       const token = await AsyncStorage.getItem("token");
@@ -147,17 +188,20 @@ const Dashboard: React.FC<DashboardProps> = () => {
     updateStatus();
   }, []);
 
-  const { cases, loading, error } = useSelector(
-    (state: any) => state.reportedCases
-  );
-
   useEffect(() => {
-    dispatch(getReportedCasesApi());
-
     const fetchData = async () => {
-      const locationString = (await getStorage("user_location_info")) as string;
-      const location = JSON.parse(locationString);
-      console.log("Stored Location:", location);
+      try {
+        const locationString = await getStorage("user_location_info");
+
+        if (typeof locationString === "string") {
+          const location = JSON.parse(locationString);
+          console.log("Stored Location:", location);
+        } else {
+          console.warn("No valid location string found:", locationString);
+        }
+      } catch (err) {
+        console.error("Failed to fetch stored location:", err);
+      }
     };
 
     fetchData();
@@ -187,7 +231,7 @@ const Dashboard: React.FC<DashboardProps> = () => {
           />
           <View style={styles.profileSection}>
             <IconButton
-              onPress={() => router.navigate({ pathname: "/profile/profile" })}
+              onPress={() => router.push({ pathname: "/profile/profile" })}
               icon={() => (
                 <Ionicons color={colors.white} name="person-circle" size={43} />
               )}
@@ -195,11 +239,13 @@ const Dashboard: React.FC<DashboardProps> = () => {
           </View>
         </View>
         <WeeklyReportChart data={cases} />
-        <StepTracker
-          currentStep={currentStep}
-          labels={stepLabels}
-          onGoing={true}
-        />
+        {stepTrackers && (
+          <StepTracker
+            currentStep={currentStep}
+            labels={stepLabels}
+            onGoing={true}
+          />
+        )}
         <TripLogsSection logs={cases} />
         <TripDecisionModal
           data={modalData}

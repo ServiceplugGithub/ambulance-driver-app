@@ -9,7 +9,7 @@ const BackButton: React.FC = () => {
   return (
     <View style={styles.container}>
       <IconButton
-        onPress={() => router.navigate("/home/home")}
+        onPress={() => router.push("/home/home")}
         icon={() => (
           <Ionicons color={colors.white} name="arrow-back" size={30} />
         )}

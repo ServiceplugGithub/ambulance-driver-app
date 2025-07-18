@@ -1,9 +1,11 @@
 import { useFonts } from "expo-font";
 import { Stack, useRouter } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import "react-native-reanimated";
 
+import ErrorBoundary from "@/components/error-boundary";
+import LoadingScreen from "@/components/loading";
 import { localStorageKey } from "@/constants/common";
 import { Inter } from "@/constants/fonts";
 import { useColorScheme } from "@/hooks/useColorScheme";
@@ -105,8 +107,12 @@ export default function RootLayout() {
   return (
     <Provider store={store}>
       <SafeAreaProvider>
-        {isAuthenticated ? protectedRoute() : authRoute()}
-        <Toast position="bottom" bottomOffset={20} />
+        <ErrorBoundary>
+          <Suspense fallback={<LoadingScreen />}>
+            {isAuthenticated ? protectedRoute() : authRoute()}
+          </Suspense>
+          <Toast position="bottom" bottomOffset={20} />
+        </ErrorBoundary>
       </SafeAreaProvider>
     </Provider>
   );
