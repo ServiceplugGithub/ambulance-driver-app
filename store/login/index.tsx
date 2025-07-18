@@ -2,24 +2,18 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { loginUserApi } from "./LoginApi";
 
-interface User {
-  _id: string;
-  name: string;
-  email: string;
-  role: string;
-  [key: string]: any;
-}
-
 interface LoginState {
   token: string;
-  user: User | null;
+  user: null;
   isLoggedIn: boolean;
+  rawResponse: any; // NEW
 }
 
 const initialState: LoginState = {
   token: "",
   user: null,
   isLoggedIn: false,
+  rawResponse: null,
 };
 
 const loginSlice = createSlice({
@@ -30,6 +24,7 @@ const loginSlice = createSlice({
       state.token = "";
       state.user = null;
       state.isLoggedIn = false;
+      state.rawResponse = null;
       AsyncStorage.removeItem("token");
       AsyncStorage.removeItem("userId");
     },
@@ -39,10 +34,10 @@ const loginSlice = createSlice({
       loginUserApi.fulfilled,
       (state, action: PayloadAction<any>) => {
         const { token, user } = action.payload;
-
         state.token = token;
         state.user = user;
         state.isLoggedIn = true;
+        state.rawResponse = action.payload;
 
         AsyncStorage.setItem("token", token);
         AsyncStorage.setItem("userId", user._id);

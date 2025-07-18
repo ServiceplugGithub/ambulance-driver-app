@@ -38,8 +38,9 @@ const StepDecisionModal: React.FC<StepDecisionModalProps> = ({
 
           <View style={styles.buttonRow}>
             <TouchableOpacity style={styles.declineBtn} onPress={onDecline}>
-              <AppText style={styles.btnText}>Decline</AppText>
+              <AppText style={styles.btnText}>Close</AppText>
             </TouchableOpacity>
+
             <TouchableOpacity style={styles.acceptBtn} onPress={onAccept}>
               <AppText style={styles.btnText}>Accept</AppText>
             </TouchableOpacity>

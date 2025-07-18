@@ -1,12 +1,12 @@
 import { localStorageKey, secureStorageKey } from "@/constants/common";
-import * as SecureStore from "expo-secure-store";
 import "react-native-get-random-values";
 import { v4 as uuidv4 } from "uuid";
 import axiosInstance from "./axios-instance";
 import { setSecureStorage, setStorage } from "./storage";
 
 export const getDeviceId = async () => {
-  let deviceId = await SecureStore.getItemAsync(secureStorageKey.deviceId);
+  // let deviceId = await SecureStore.getItemAsync(secureStorageKey.deviceId);
+  let deviceId = '0dcb853c0283c629'
   //if user has already signed up prior
   if (deviceId) {
     return deviceId;

@@ -59,8 +59,6 @@ const TrackingSection = () => {
 
   const dispatch = useDispatch<any>();
 
-  console.log(assignedCase, "asdfadfadf");
-
   if (!assignedCase) return <AppText>No data found</AppText>;
 
   useEffect(() => {
@@ -97,10 +95,6 @@ const TrackingSection = () => {
     };
   }, []);
 
-  useEffect(() => {
-    setList(stepLabels[stepIndex]);
-  }, [stepIndex]);
-
   const stepEventsMap: { [key: string]: string } = {
     "Leave Hospital": "departed",
     "Reached Pickup": "reached_pickup",
@@ -109,7 +103,11 @@ const TrackingSection = () => {
     "Finish Case": "case_finished",
   };
 
-  const [list, setList] = useState("");
+  const [list, setList] = useState("Leave Hospital");
+  useEffect(() => {
+    console.log(stepLabels[stepIndex], "dfghj0", stepIndex);
+    setList(stepLabels[stepIndex]);
+  }, [stepIndex]);
 
   const labels = [
     "Reported",
@@ -118,6 +116,8 @@ const TrackingSection = () => {
     "Arrived at Location",
     "Reached Hospital",
   ];
+
+  console.log(list, "<===List");
 
   const getCurrentStep = (data: any): number => {
     if (!data) return -1;
@@ -129,13 +129,23 @@ const TrackingSection = () => {
     return -1;
   };
 
+  const handleTerminate = () => {
+    dispatch(
+      postCaseUpdateApi({
+        event: "case_terminated",
+        userId: "6853f0bf2fd5e36814c9cb5f",
+        data: assignedCase,
+      })
+    );
+  };
+
   const currentStep = useMemo(() => getCurrentStep(data), [data]);
   const [modalVisible, setModalVisible] = useState(false);
 
-  useEffect(() => {
-    setList(labels[currentStep]);
-  }, [currentStep]);
-
+  // useEffect(() => {
+  //   setList(labels[currentStep]);
+  // }, [currentStep]);
+  const [type, setType] = useState(true);
   return (
     <View style={styles.container}>
       <View style={styles.profileSection}>
@@ -216,21 +226,38 @@ const TrackingSection = () => {
               {assignedCase.duration}
             </AppText>
           </View>
-          <TouchableOpacity onPress={() => setModalVisible(true)}>
+          <TouchableOpacity
+            onPress={() => {
+              setModalVisible(true);
+              setType(false);
+            }}
+          >
             <View style={styles.button}>
               <AppText style={styles.buttonText}>{list}</AppText>
             </View>
           </TouchableOpacity>
-          <TouchableOpacity onPress={() => setModalVisible(true)}>
-            <View style={styles.button2}>
-              <AppText style={styles.buttonText}>Cancel Trip</AppText>
-            </View>
-          </TouchableOpacity>
+          {list !== "Finish Case" && (
+            <TouchableOpacity
+              onPress={() => {
+                // setModalVisible(true);
+                // setType(false);
+                handleTerminate();
+                setStepIndex(0);
+                setList(stepLabels[0]);
+                router.push({ pathname: "/home/home" });
+              }}
+            >
+              <View style={styles.button2}>
+                <AppText style={styles.buttonText}>Cancel Trip</AppText>
+              </View>
+            </TouchableOpacity>
+          )}
         </View>
       </ScrollView>
       <StepDecisionModal
         visible={modalVisible}
         onAccept={() => {
+          const startAceept = 0;
           const currentLabel = stepLabels[stepIndex];
           const event = stepEventsMap[currentLabel];
           console.log(event, "Triggered Event");
@@ -240,7 +267,7 @@ const TrackingSection = () => {
             dispatch(
               postCaseUpdateApi({
                 event,
-                userId: "6853e4956eca28a7a5356d0f",
+                userId: "6853f0bf2fd5e36814c9cb5f",
                 data: assignedCase,
               })
             );
@@ -252,7 +279,7 @@ const TrackingSection = () => {
           if (currentLabel === "Finish Case") {
             setStepIndex(0);
             setList(stepLabels[0]);
-            router.navigate({ pathname: "/home/home" });
+            router.push({ pathname: "/home/home" });
           } else {
             setStepIndex((prev) => prev + 1);
             setList(stepLabels[stepIndex + 1]);
@@ -261,14 +288,6 @@ const TrackingSection = () => {
           setModalVisible(false);
         }}
         onDecline={() => {
-          dispatch(
-            postCaseUpdateApi({
-              event: "case_terminated",
-              userId: "6853e4956eca28a7a5356d0f",
-              data: assignedCase,
-            })
-          );
-          router.replace({ pathname: "/home/home" });
           setModalVisible(false);
         }}
         onClose={() => setModalVisible(false)}

@@ -70,21 +70,22 @@ const TripDecisionModal: React.FC<TripDecisionModalProps> = ({
   const handleAccept = async () => {
     await stopSound();
     onAccept();
-    router.navigate("/tracking/tracking");
+    router.push("/tracking/tracking");
     dispatch(
       postCaseUpdateApi({
         event: "ambulance accepted",
-        userId: "6853e4956eca28a7a5356d0f",
+        userId: "6853f0bf2fd5e36814c9cb5f",
         data: data,
       })
     );
   };
   const handleDecline = async () => {
     await stopSound();
+    onDecline();
     dispatch(
       postCaseUpdateApi({
         event: "ambulance rejected",
-        userId: "6853e4956eca28a7a5356d0f",
+        userId: "6853f0bf2fd5e36814c9cb5f",
         data: data,
       })
     );
