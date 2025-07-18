@@ -1,13 +1,17 @@
 import AppText from "@/components/AppText";
 import BackButton from "@/components/back-button/index";
 import StepDecisionModal from "@/components/Modal/steperModal";
-import StepTracker from "@/components/step-indicator";
 import { fontFamily } from "@/constants/fonts";
+import { RootState } from "@/store";
+import { postCaseUpdateApi } from "@/store/caseUpdates/CaseUpdatesApi";
 import { colors } from "@/utils/constants/colors";
 import * as Location from "expo-location";
+import { router } from "expo-router";
 import React, { useEffect, useMemo, useState } from "react";
 import { ScrollView, StyleSheet, TouchableOpacity, View } from "react-native";
 import MapView, { Marker } from "react-native-maps";
+import MapViewDirections from "react-native-maps-directions";
+import { useDispatch, useSelector } from "react-redux";
 
 const data = {
   case_accepted_at: "2024-05-01T10:00:00",
@@ -18,39 +22,92 @@ const data = {
 };
 
 const TrackingSection = () => {
+  const assignedCase = useSelector(
+    (state: RootState) => state.assignedCase.data
+  );
+  const patientLocation = useMemo(() => {
+    if (!assignedCase?.caseDetails?.coordinates) return null;
+    const [lat, lng] = assignedCase.caseDetails.coordinates
+      .split(",")
+      .map((val: string) => parseFloat(val.trim()));
+    return { latitude: lat, longitude: lng };
+  }, [assignedCase]);
+
+  const [stepIndex, setStepIndex] = useState(0);
+  const stepLabels = [
+    "Leave Hospital",
+    "Reached Pickup",
+    "Patient Picked Up",
+    "Reached Hospital",
+    "Finish Case",
+  ];
+  const hospitalLocation = {
+    latitude: 13.03,
+    longitude: 77.57,
+  };
+
+  const destination = useMemo(() => {
+    return stepLabels[stepIndex] === "Patient Picked Up"
+      ? hospitalLocation
+      : hospitalLocation;
+  }, [stepIndex, hospitalLocation, patientLocation]);
+
   const [currentLocation, setCurrentLocation] = useState<{
     latitude: number;
     longitude: number;
   } | null>(null);
 
+  const dispatch = useDispatch<any>();
+
+  console.log(assignedCase, "asdfadfadf");
+
+  if (!assignedCase) return <AppText>No data found</AppText>;
+
   useEffect(() => {
-    const getLiveLocation = async () => {
+    let subscription: Location.LocationSubscription;
+
+    const startWatchingLocation = async () => {
       const { status } = await Location.requestForegroundPermissionsAsync();
       if (status !== "granted") {
         console.warn("Location permission not granted");
         return;
       }
 
-      const location = await Location.getCurrentPositionAsync({});
-      setCurrentLocation({
-        latitude: location.coords.latitude,
-        longitude: location.coords.longitude,
-      });
+      subscription = await Location.watchPositionAsync(
+        {
+          accuracy: Location.Accuracy.High,
+          timeInterval: 5000,
+          distanceInterval: 10,
+        },
+        (location) => {
+          setCurrentLocation({
+            latitude: location.coords.latitude,
+            longitude: location.coords.longitude,
+          });
+        }
+      );
     };
 
-    getLiveLocation();
+    startWatchingLocation();
+
+    return () => {
+      if (subscription) {
+        subscription.remove();
+      }
+    };
   }, []);
 
-  const stepLabels = useMemo(
-    () => [
-      "Reported",
-      "Assigned",
-      "Departed",
-      "Arrived at Location",
-      "Reached Hospital",
-    ],
-    []
-  );
+  useEffect(() => {
+    setList(stepLabels[stepIndex]);
+  }, [stepIndex]);
+
+  const stepEventsMap: { [key: string]: string } = {
+    "Leave Hospital": "departed",
+    "Reached Pickup": "reached_pickup",
+    "Patient Picked Up": "picked_up",
+    "Reached Hospital": "reached_hospital",
+    "Finish Case": "case_finished",
+  };
 
   const [list, setList] = useState("");
 
@@ -91,39 +148,73 @@ const TrackingSection = () => {
             <MapView
               style={styles.map}
               region={{
-                latitude: currentLocation.latitude,
-                longitude: currentLocation.longitude,
+                latitude: currentLocation?.latitude ?? 13.03,
+                longitude: currentLocation?.longitude ?? 77.57,
                 latitudeDelta: 0.01,
                 longitudeDelta: 0.01,
               }}
               showsUserLocation={true}
             >
-              <Marker
-                coordinate={currentLocation}
-                title="Ambulance"
-                description="Your current location"
-              />
+              {currentLocation && (
+                <Marker
+                  coordinate={currentLocation}
+                  title="Ambulance"
+                  description="Live location"
+                  pinColor="blue"
+                />
+              )}
+
+              {patientLocation && stepIndex < 2 && (
+                <Marker
+                  coordinate={patientLocation}
+                  title="Patient"
+                  pinColor="orange"
+                />
+              )}
+
+              {stepIndex >= 2 && (
+                <Marker
+                  coordinate={hospitalLocation}
+                  title="Hospital"
+                  pinColor="red"
+                />
+              )}
+
+              {currentLocation && destination && (
+                <MapViewDirections
+                  origin={currentLocation}
+                  destination={destination}
+                  apikey={"AIzaSyBFOfOMMomcMNMVEaI3EHNtNdcvvVMNvb4"}
+                  strokeWidth={4}
+                  strokeColor="blue"
+                />
+              )}
             </MapView>
           )}
         </View>
       </View>
       <ScrollView>
         <View style={styles.detailBox}>
-          <View style={styles.stepContainer}>
-            <StepTracker
+          {/* <View style={styles.stepContainer}> */}
+          {/* <StepTracker
               currentStep={currentStep}
               labels={stepLabels}
               onGoing={false}
-            />
-          </View>
+            /> */}
+          {/* </View> */}
 
           <View style={styles.innerBox}>
             <AppText style={styles.headerText}>Trip Details</AppText>
             <AppText style={styles.addText}>
-              404, P&T Colony, RT Nager, Karnataka - 500081
+              {assignedCase.caseDetails?.location}
             </AppText>
-            <AppText style={styles.addText}>Patents - 2</AppText>
-            <AppText style={styles.addText}>ETA - 4 min</AppText>
+            <AppText style={styles.addText}>
+              Incident Type: {assignedCase.caseDetails?.incidentType}
+            </AppText>
+            <AppText style={styles.addText}>
+              Distance: {assignedCase.distance} Duration:{" "}
+              {assignedCase.duration}
+            </AppText>
           </View>
           <TouchableOpacity onPress={() => setModalVisible(true)}>
             <View style={styles.button}>
@@ -140,9 +231,44 @@ const TrackingSection = () => {
       <StepDecisionModal
         visible={modalVisible}
         onAccept={() => {
+          const currentLabel = stepLabels[stepIndex];
+          const event = stepEventsMap[currentLabel];
+          console.log(event, "Triggered Event");
+          console.log(currentLabel, "Current Label");
+
+          if (event && assignedCase) {
+            dispatch(
+              postCaseUpdateApi({
+                event,
+                userId: "6853e4956eca28a7a5356d0f",
+                data: assignedCase,
+              })
+            );
+          }
+
+          const nextStepIndex = stepIndex + 1;
+          const nextStepLabel = stepLabels[nextStepIndex];
+
+          if (currentLabel === "Finish Case") {
+            setStepIndex(0);
+            setList(stepLabels[0]);
+            router.navigate({ pathname: "/home/home" });
+          } else {
+            setStepIndex((prev) => prev + 1);
+            setList(stepLabels[stepIndex + 1]);
+          }
+
           setModalVisible(false);
         }}
         onDecline={() => {
+          dispatch(
+            postCaseUpdateApi({
+              event: "case_terminated",
+              userId: "6853e4956eca28a7a5356d0f",
+              data: assignedCase,
+            })
+          );
+          router.replace({ pathname: "/home/home" });
           setModalVisible(false);
         }}
         onClose={() => setModalVisible(false)}

@@ -1,21 +1,26 @@
+import { fontFamily } from "@/constants/fonts";
+import { postCaseUpdateApi } from "@/store/caseUpdates/CaseUpdatesApi";
 import { colors } from "@/utils/constants/colors";
+import { Audio } from "expo-av";
 import { router } from "expo-router";
-import React from "react";
+import React, { useEffect, useRef } from "react";
 import {
   Modal,
   StyleSheet,
-  Text,
   TextStyle,
   TouchableOpacity,
   View,
   ViewStyle,
 } from "react-native";
+import { useDispatch } from "react-redux";
+import AppText from "../AppText";
 
 interface TripDecisionModalProps {
   visible: boolean;
   onAccept: () => void;
   onDecline: () => void;
   onClose: () => void;
+  data: any;
 }
 
 const TripDecisionModal: React.FC<TripDecisionModalProps> = ({
@@ -23,12 +28,67 @@ const TripDecisionModal: React.FC<TripDecisionModalProps> = ({
   onAccept,
   onDecline,
   onClose,
+  data,
 }) => {
-  const handleAccept = () => {
-    onAccept();
-    router.navigate("/tracking/tracking");
+  const dispatch = useDispatch<any>();
+
+  const soundRef = useRef<Audio.Sound | null>(null);
+
+  useEffect(() => {
+    const playSound = async () => {
+      if (!visible) return;
+
+      const { sound } = await Audio.Sound.createAsync(
+        require("../../utils/ringtone/fire_alarm.mp3"),
+        {
+          isLooping: true,
+          shouldPlay: true,
+        }
+      );
+      soundRef.current = sound;
+      await sound.playAsync();
+    };
+
+    playSound();
+
+    return () => {
+      if (soundRef.current) {
+        soundRef.current.stopAsync();
+        soundRef.current.unloadAsync();
+      }
+    };
+  }, [visible]);
+
+  const stopSound = async () => {
+    if (soundRef.current) {
+      await soundRef.current.stopAsync();
+      await soundRef.current.unloadAsync();
+      soundRef.current = null;
+    }
   };
 
+  const handleAccept = async () => {
+    await stopSound();
+    onAccept();
+    router.navigate("/tracking/tracking");
+    dispatch(
+      postCaseUpdateApi({
+        event: "ambulance accepted",
+        userId: "6853e4956eca28a7a5356d0f",
+        data: data,
+      })
+    );
+  };
+  const handleDecline = async () => {
+    await stopSound();
+    dispatch(
+      postCaseUpdateApi({
+        event: "ambulance rejected",
+        userId: "6853e4956eca28a7a5356d0f",
+        data: data,
+      })
+    );
+  };
   return (
     <Modal
       visible={visible}
@@ -38,15 +98,31 @@ const TripDecisionModal: React.FC<TripDecisionModalProps> = ({
     >
       <View style={styles.overlay}>
         <View style={styles.modalBox}>
-          <Text style={styles.title}>New Trip Request</Text>
-          <Text style={styles.subtitle}>Do you want to accept the trip?</Text>
+          <AppText style={styles.title}>New Trip Request</AppText>
+          <View style={styles.caseDetailsBox}>
+            <AppText style={styles.caseText}>
+              #{data.caseDetails?.caseID}
+            </AppText>
+            <AppText style={styles.caseDialog}>
+              Incident Type: {data.caseDetails?.incidentType}
+            </AppText>
+            <AppText style={styles.caseDialog}>
+              Location: {data.caseDetails?.location}
+            </AppText>
+            <AppText style={styles.caseDialog}>
+              Distance: {data.distance} Duration: {data.duration}
+            </AppText>
+          </View>
+          <AppText style={styles.subtitle}>
+            Do you want to accept the trip?
+          </AppText>
 
           <View style={styles.buttonRow}>
-            <TouchableOpacity style={styles.declineBtn} onPress={onDecline}>
-              <Text style={styles.btnText}>Decline</Text>
+            <TouchableOpacity style={styles.declineBtn} onPress={handleDecline}>
+              <AppText style={styles.btnText}>Decline</AppText>
             </TouchableOpacity>
             <TouchableOpacity style={styles.acceptBtn} onPress={handleAccept}>
-              <Text style={styles.btnText}>Accept</Text>
+              <AppText style={styles.btnText}>Accept</AppText>
             </TouchableOpacity>
           </View>
         </View>
@@ -101,5 +177,20 @@ const styles = StyleSheet.create({
   btnText: {
     color: "white",
     fontWeight: "600",
+  } as TextStyle,
+  caseDetailsBox: {
+    backgroundColor: colors.white,
+    elevation: 5,
+    padding: 10,
+    borderRadius: 10,
+    marginBottom: 10,
+  } as ViewStyle,
+  caseText: {
+    fontFamily: fontFamily[600],
+    fontSize: 12,
+    color: colors.gray[500],
+  } as TextStyle,
+  caseDialog: {
+    fontFamily: fontFamily[700],
   } as TextStyle,
 });

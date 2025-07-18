@@ -38,6 +38,5 @@ TaskManager.defineTask(LOCATION_TASK_NAME, async ({ data, error }) => {
       'ambulance_location',
       JSON.stringify({ latitude, longitude, timestamp: Date.now() })
     );
-    console.log('Background location saved:', latitude, longitude);
   }
 });

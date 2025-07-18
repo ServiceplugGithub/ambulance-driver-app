@@ -189,6 +189,7 @@ const SendOtpScreen = () => {
               label="Login"
               onPress={() => {
                 handleSubmit(onSubmit)();
+                // router.navigate("/location-prompt");
               }}
               // disabled={!isValid || isEmpty(dirtyFields)}
               loading={loading}

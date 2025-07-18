@@ -7,6 +7,7 @@ import { startLiveLocationTracking } from "@/components/live-tracker";
 import TripDecisionModal from "@/components/Modal/NewTrip";
 import StepTracker from "@/components/step-indicator";
 import TripLogsSection from "@/components/trip-logs/index";
+import { setAssignedCase } from "@/store/assignedCaseData";
 import { getReportedCasesApi } from "@/store/caseReported/CaseReportedApi";
 import { startBackgroundLocation } from "@/store/location/Location";
 import { changeVehicleAvailabilityApi } from "@/store/toogleButton/ToogleButtonApi";
@@ -18,7 +19,14 @@ import { Ionicons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { router } from "expo-router";
 import React, { useEffect, useMemo, useState } from "react";
-import { Dimensions, Image, StyleSheet, Switch, View } from "react-native";
+import {
+  Dimensions,
+  Image,
+  StyleSheet,
+  Switch,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import { IconButton } from "react-native-paper";
 import { useDispatch, useSelector } from "react-redux";
 import { Socket } from "socket.io-client";
@@ -76,6 +84,8 @@ const Dashboard: React.FC<DashboardProps> = () => {
     longitude: number;
   } | null>(null);
 
+  const [modalData, setModalData] = useState("");
+
   useEffect(() => {
     const setupSocket = async () => {
       const newSocket = await createSocket();
@@ -98,8 +108,10 @@ const Dashboard: React.FC<DashboardProps> = () => {
 
       newSocket.off("case_assigned");
       newSocket.on("case_assigned", (data) => {
-        console.log("New Case Assigned:", data);
+        // console.log("New Case Assigned:", data);
         setModalVisible(true);
+        setModalData(data);
+        dispatch(setAssignedCase(data));
       });
     };
 
@@ -154,17 +166,18 @@ const Dashboard: React.FC<DashboardProps> = () => {
   if (loading) return <AppText>Loading...</AppText>;
   if (error) return <AppText>{error}</AppText>;
 
-  console.log(cases);
-
   return (
     <>
       <View style={styles.container}>
         <HeaderSection title="p" />
         <View style={styles.innerContainer}>
-          <Image
-            style={styles.Sp}
-            source={require("../../utils/images/Group_134.jpg")}
-          />
+          <TouchableOpacity onPress={() => setModalVisible(true)}>
+            <Image
+              style={styles.Sp}
+              source={require("../../utils/images/Group_134.jpg")}
+            />
+          </TouchableOpacity>
+
           <Switch
             value={isEnabled}
             onValueChange={setIsEnabled}
@@ -189,6 +202,7 @@ const Dashboard: React.FC<DashboardProps> = () => {
         />
         <TripLogsSection logs={cases} />
         <TripDecisionModal
+          data={modalData}
           visible={modalVisible}
           onAccept={() => {
             setModalVisible(false);

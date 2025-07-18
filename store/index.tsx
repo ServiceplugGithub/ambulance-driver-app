@@ -1,6 +1,7 @@
 import { configureStore } from "@reduxjs/toolkit";
 import loginReducer from "../store/login/index";
 import profileReducer from "../store/profileSection/index";
+import assignedCaseReducer from "./assignedCaseData/index";
 import reportedCasesReducer from "./caseReported/index";
 
 export const store = configureStore({
@@ -8,6 +9,7 @@ export const store = configureStore({
     login: loginReducer,
     reportedCases: reportedCasesReducer,
     profile: profileReducer,
+    assignedCase: assignedCaseReducer,
   },
 });
 
