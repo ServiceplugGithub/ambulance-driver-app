@@ -6,11 +6,10 @@ import "react-native-reanimated";
 
 import ErrorBoundary from "@/components/error-boundary";
 import LoadingScreen from "@/components/loading";
-import { localStorageKey } from "@/constants/common";
 import { Inter } from "@/constants/fonts";
 import { useColorScheme } from "@/hooks/useColorScheme";
 import { store } from "@/store";
-import { getStorage } from "@/utils/storage";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import Toast from "react-native-toast-message";
 import { Provider } from "react-redux";
@@ -36,18 +35,17 @@ export default function RootLayout() {
   const router = useRouter();
 
   const initApp = async () => {
-    // getAnalytics().logAppOpen()
-    const accessToken = await getStorage(localStorageKey.accessToken);
+    const accessToken = await AsyncStorage.getItem("token");
     console.log("accesstoken", accessToken);
     setIsAuthenticated(!!accessToken);
-    if (!isAuthenticated) {
-      router.navigate({ pathname: "/auth/send-otp" });
-    }
 
-    // else {
-    //   console.log('navigating to home')
-    //   router.navigate({ pathname: '/home' });
-    // }
+    if (!accessToken) {
+      console.log("nAVIGATE TO AUTH");
+      router.replace({ pathname: "/auth/send-otp" });
+    } else {
+      console.log("navigating to home");
+      router.replace({ pathname: "/home/home" });
+    }
     SplashScreen.hideAsync();
   };
 
@@ -103,6 +101,7 @@ export default function RootLayout() {
       </Stack>
     );
   };
+  console.log(isAuthenticated, "<=======Auth");
 
   return (
     <Provider store={store}>

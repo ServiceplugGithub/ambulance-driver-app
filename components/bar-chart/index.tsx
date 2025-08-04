@@ -1,5 +1,4 @@
 import { fontFamily } from "@/constants/fonts";
-import { colors } from "@/utils/constants/colors";
 import moment from "moment";
 import React, { useMemo } from "react";
 import { Dimensions, StyleSheet, View } from "react-native";
@@ -39,7 +38,7 @@ const WeeklyReportChart: React.FC<WeeklyReportChartProps> = ({ data }) => {
 
   return (
     <View style={styles.container}>
-      <AppText style={styles.title}>Weekly Report</AppText>
+      {/* <AppText style={styles.title}>Weekly Report</AppText> */}
       <View style={styles.tripStats}>
         <AppText style={styles.subTitle}>Todays Trips: </AppText>
         <AppText style={styles.subTitle}>Total Trips: {data.length}</AppText>
@@ -49,7 +48,7 @@ const WeeklyReportChart: React.FC<WeeklyReportChartProps> = ({ data }) => {
           labels: weekdays,
           datasets: [{ data: weeklyCounts }],
         }}
-        width={screenWidth - 40}
+        width={screenWidth - 60}
         height={220}
         yAxisLabel=""
         yAxisSuffix=""
@@ -64,7 +63,7 @@ const WeeklyReportChart: React.FC<WeeklyReportChartProps> = ({ data }) => {
           labelColor: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
           barPercentage: 0.6,
         }}
-        style={{ borderRadius: 5 }}
+        style={{ borderRadius: 5, marginTop: 8 }}
       />
     </View>
   );
@@ -74,12 +73,12 @@ export default WeeklyReportChart;
 
 const styles = StyleSheet.create({
   container: {
-    padding: 10,
-    marginHorizontal: 10,
-    marginTop: 10,
-    elevation: 5,
-    backgroundColor: colors.white,
-    borderRadius: 10,
+    // padding: 10,
+    // marginHorizontal: 10,
+    // marginTop: 10,
+    // elevation: 5,
+    // backgroundColor: colors.white,
+    // borderRadius: 10,
   },
   title: {
     fontSize: 20,

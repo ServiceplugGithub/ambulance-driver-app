@@ -34,7 +34,7 @@ const TripLogsSection: React.FC<TripLogsSectionProps> = ({ logs }) => {
   return (
     <View style={styles.listBox}>
       <View style={styles.listHeader}>
-        <AppText style={styles.headerText}>Details</AppText>
+        {/* <AppText style={styles.headerText}>Details</AppText> */}
       </View>
       <ScrollView>
         {logs.map((log) => (
@@ -82,16 +82,16 @@ export default TripLogsSection;
 
 const styles = StyleSheet.create({
   listBox: {
-    flex: 1,
-    marginTop: 30,
-    backgroundColor: colors.white,
-    borderTopLeftRadius: 40,
-    borderTopRightRadius: 40,
-    elevation: 10,
+    // flex: 1,
+    // marginTop: 30,
+    // backgroundColor: colors.white,
+    // borderTopLeftRadius: 40,
+    // borderTopRightRadius: 40,
+    // elevation: 10,
   },
   listHeader: {
     borderBottomWidth: 0.5,
-    padding: 20,
+    // padding: 20,
     borderBottomColor: colors.borderBottom,
   },
   headerText: {

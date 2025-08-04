@@ -1,13 +1,19 @@
 import AppText from "@/components/AppText";
 import BackButton from "@/components/back-button/index";
-import { fontFamily } from "@/constants/fonts";
 import { RootState } from "@/store";
 import { getUserProfileApi } from "@/store/profileSection/ProfileSectionApi";
 import { colors } from "@/utils/constants/colors";
+import { Ionicons } from "@expo/vector-icons";
 import { useEffect } from "react";
-import { Dimensions, Image, ScrollView, StyleSheet, View } from "react-native";
+import {
+  Dimensions,
+  Image,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+} from "react-native";
 import { ActivityIndicator } from "react-native-paper";
-import { Text } from "react-native-svg";
 import { useDispatch, useSelector } from "react-redux";
 
 const ProfileSection = () => {
@@ -22,79 +28,143 @@ const ProfileSection = () => {
     dispatch(getUserProfileApi());
   }, []);
 
-  if (loading) return <ActivityIndicator />;
-  if (error) return <Text>{error}</Text>;
-  if (!profile) return <Text>No profile data found</Text>;
+  if (loading) return <ActivityIndicator style={styles.loadingIndicator} />;
+  if (error) return <Text style={styles.errorText}>{error}</Text>;
+  if (!profile)
+    return <Text style={styles.errorText}>No profile data found</Text>;
+
   return (
-    <View style={styles.headerSection}>
-      <ScrollView>
-        <View style={styles.profileSection}>
-          <BackButton />
+    <View style={styles.container}>
+      <BackButton />
+
+      <View style={styles.header}>
+        <View style={styles.profileImageContainer}>
+          <Image
+            source={require("../../utils/images/driver-uniform.jpeg")}
+            style={styles.profileImage}
+          />
         </View>
-        <View style={{ marginTop: 20 }}>
-          <View style={styles.container}>
-            <View style={styles.imageContainer}>
-              <Image
-                source={require("../../utils/images/driver-uniform.jpeg")}
-                style={styles.profileImage}
-              />
-            </View>
-            <View style={styles.detailBox}>
-              <AppText style={styles.profileText}> PROFILE</AppText>
-              <AppText style={styles.text}>{profile.name}</AppText>
-              <AppText>{profile.email}</AppText>
-              <AppText>+91 9876543210</AppText>
-              <AppText style={styles.ID}>ID- {profile._id}</AppText>
-            </View>
-            <View style={styles.detailBox2}>
-              <AppText style={styles.detailText}>HOSPITAL DETAILS</AppText>
-              <AppText style={styles.text}>{profile.hospital.name}</AppText>
-              <AppText>Hospital Code - {profile.hospital.code}</AppText>
-              <AppText>Hospital Office - +91 9876543210</AppText>
-              <AppText style={styles.ID}>{profile.hospital.address}</AppText>
-            </View>
-            <View style={styles.detailBox2}>
-              <AppText style={styles.detailText}>VECHILE DETAILS</AppText>
-              <AppText style={styles.text}>
-                {profile.ambulanceID.rcNumber}
-              </AppText>
-              <AppText>{profile.ambulanceID.name}</AppText>
-              <AppText>{profile.ambulanceID.vehicleType} </AppText>
-              {/* <AppText>Oxygen Availability - Yes</AppText>
-              <AppText>Defibrillator Equipped - Yes </AppText>
-              <AppText style={styles.ID}>GPS Tracking ID - 8975418</AppText> */}
-            </View>
-            <View style={styles.detailBox3}>
-              <AppText style={styles.warningText}>
-                * For any personal information updates, please contact your
-                registered hospital admin.
-              </AppText>
-              <AppText style={styles.warningText}>
-                * You will be notified once a case is assigned. Please keep your
-                app active and notifications on.
-              </AppText>
-              <AppText style={styles.warningText}>
-                * Ensure location access is always enabled for accurate tracking
-                and ETA updates.
-              </AppText>
-              <AppText style={styles.warningText}>
-                * In case of app malfunction or emergency, immediately contact
-                the control room or hospital admin
-              </AppText>
-              <AppText style={styles.warningText}>
-                * For any personal information updates, please contact your
-                registered hospital admin.
-              </AppText>
-              <AppText style={styles.warningText}>
-                * Update each stage of the trip (Assigned, Departed, Arrived,
-                Reached Hospital) promptly within the app
-              </AppText>
-              <AppText style={styles.warningText}>
-                * Use the trip notes section to report any unusual delays,
-                detours, or incidents during the trip.
-              </AppText>
-            </View>
-          </View>
+        <AppText style={styles.profileName}>{profile.name}</AppText>
+        <AppText style={styles.profileId}>ID: {profile._id}</AppText>
+      </View>
+      <ScrollView contentContainerStyle={styles.detailsContent}>
+        <AppText style={styles.sectionHeader}>Personal Details</AppText>
+        <View style={styles.detailRow}>
+          <Ionicons
+            name="person-outline"
+            size={20}
+            color={colors.gray[600]}
+            style={styles.icon}
+          />
+          <AppText style={styles.detailText}>{profile.email}</AppText>
+        </View>
+        <View style={styles.detailRow}>
+          <Ionicons
+            name="call-outline"
+            size={20}
+            color={colors.gray[600]}
+            style={styles.icon}
+          />
+          <AppText style={styles.detailText}>+91 9876543210</AppText>
+        </View>
+
+        {/* Hospital Details */}
+        <AppText style={styles.sectionHeader}>Hospital Details</AppText>
+        <View style={styles.detailRow}>
+          <Ionicons
+            name="medical-outline"
+            size={20}
+            color={colors.gray[600]}
+            style={styles.icon}
+          />
+          <AppText style={styles.detailTitle}>{profile.hospital.name}</AppText>
+        </View>
+        <View style={styles.detailRow}>
+          <Ionicons
+            name="code-outline"
+            size={20}
+            color={colors.gray[600]}
+            style={styles.icon}
+          />
+          <AppText style={styles.detailText}>
+            Hospital Code - {profile.hospital.code}
+          </AppText>
+        </View>
+        <View style={styles.detailRow}>
+          <Ionicons
+            name="location-outline"
+            size={20}
+            color={colors.gray[600]}
+            style={styles.icon}
+          />
+          <AppText style={styles.detailText}>
+            {profile.hospital.address}
+          </AppText>
+        </View>
+
+        {/* Vehicle Details */}
+        <AppText style={styles.sectionHeader}>Vehicle Details</AppText>
+        <View style={styles.detailRow}>
+          <Ionicons
+            name="car-outline"
+            size={20}
+            color={colors.gray[600]}
+            style={styles.icon}
+          />
+          <AppText style={styles.detailTitle}>
+            {profile.ambulanceID.name}
+          </AppText>
+        </View>
+        <View style={styles.detailRow}>
+          <Ionicons
+            name="document-text-outline"
+            size={20}
+            color={colors.gray[600]}
+            style={styles.icon}
+          />
+          <AppText style={styles.detailText}>
+            Registration No - {profile.ambulanceID.rcNumber}
+          </AppText>
+        </View>
+        <View style={styles.detailRow}>
+          <Ionicons
+            name="shield-checkmark-outline"
+            size={20}
+            color={colors.gray[600]}
+            style={styles.icon}
+          />
+          <AppText style={styles.detailText}>
+            Vehicle Type - {profile.ambulanceID.vehicleType}
+          </AppText>
+        </View>
+
+        {/* Important Information */}
+        <View style={styles.warningBox}>
+          <AppText style={styles.warningTitle}>Important Information</AppText>
+          <AppText style={styles.warningText}>
+            * For any personal information updates, please contact your
+            registered hospital admin.
+          </AppText>
+          <AppText style={styles.warningText}>
+            * You will be notified once a case is assigned. Please keep your app
+            active and notifications on.
+          </AppText>
+          <AppText style={styles.warningText}>
+            * Ensure location access is always enabled for accurate tracking and
+            ETA updates.
+          </AppText>
+          <AppText style={styles.warningText}>
+            * In case of app malfunction or emergency, immediately contact the
+            control room or hospital admin.
+          </AppText>
+          <AppText style={styles.warningText}>
+            * Update each stage of the trip (Assigned, Departed, Arrived,
+            Reached Hospital) promptly within the app.
+          </AppText>
+          <AppText style={styles.warningText}>
+            * Use the trip notes section to report any unusual delays, detours,
+            or incidents during the trip.
+          </AppText>
         </View>
       </ScrollView>
     </View>
@@ -104,24 +174,21 @@ const ProfileSection = () => {
 export default ProfileSection;
 
 const { width } = Dimensions.get("window");
-const IMAGE_SIZE = 100;
+const IMAGE_SIZE = 120;
 
 const styles = StyleSheet.create({
-  headerSection: {
-    backgroundColor: colors.green[300],
-    flex: 1,
-  },
-  profileSection: {
-    height: 100,
-    backgroundColor: colors.secondary,
-  },
   container: {
-    alignItems: "center",
-    marginTop: -IMAGE_SIZE / 2,
-    elevation: 5,
+    flex: 1,
+    backgroundColor: colors.white,
   },
-  imageContainer: {
-    zIndex: 2,
+  header: {
+    backgroundColor: colors.secondary,
+    paddingTop: 50,
+    paddingBottom: 20,
+    alignItems: "center",
+  },
+  profileImageContainer: {
+    marginBottom: 10,
   },
   profileImage: {
     width: IMAGE_SIZE,
@@ -130,64 +197,75 @@ const styles = StyleSheet.create({
     borderWidth: 3,
     borderColor: colors.white,
   },
-  detailBox: {
-    marginTop: -IMAGE_SIZE / 2,
-    width: width * 0.95,
-    backgroundColor: colors.white,
-    borderRadius: 12,
-    paddingTop: IMAGE_SIZE / 2 + 10,
-    paddingBottom: 20,
+  profileName: {
+    fontSize: 24,
+    fontWeight: "bold",
+    color: colors.white,
+    marginBottom: 4,
+  },
+  profileId: {
+    fontSize: 16,
+    color: colors.gray[200],
+  },
+  detailsContent: {
+    padding: 16,
+    paddingTop: 20,
+  },
+  sectionHeader: {
+    fontSize: 18,
+    fontWeight: "bold",
+    color: colors.gray[800],
+    marginTop: 20,
+    marginBottom: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.gray[300],
+    paddingBottom: 5,
+  },
+  detailRow: {
+    flexDirection: "row",
     alignItems: "center",
-    elevation: 5,
-    zIndex: 1,
-    gap: 5,
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.gray[200],
   },
-  profileText: {
-    fontSize: 20,
-    fontFamily: fontFamily[600],
-    color: colors.black,
+  icon: {
+    marginRight: 10,
+    width: 20,
   },
-  ID: {
-    color: colors.primary,
-    marginHorizontal: 50,
-    justifyContent: "center",
-  },
-  detailBox2: {
-    marginTop: 5,
-    width: width * 0.95,
-    backgroundColor: colors.white,
-    borderRadius: 12,
-    alignItems: "center",
-    elevation: 5,
-    zIndex: 1,
-    paddingTop: 10,
-    paddingBottom: 10,
-    gap: 5,
+  detailTitle: {
+    fontSize: 16,
+    fontWeight: "bold",
   },
   detailText: {
-    fontSize: 18,
-    fontFamily: fontFamily[600],
+    fontSize: 16,
+    color: colors.gray[600],
   },
-  text: {
-    fontFamily: fontFamily[600],
+  warningBox: {
+    backgroundColor: colors.gray[100],
+    borderRadius: 12,
+    padding: 16,
+    marginTop: 20,
+    marginBottom: 50,
+  },
+  warningTitle: {
+    fontSize: 16,
+    fontWeight: "bold",
+    color: colors.red[500],
+    marginBottom: 10,
   },
   warningText: {
-    marginTop: 5,
-    marginHorizontal: 15,
-    fontFamily: fontFamily[500],
-    gap: 10,
+    fontSize: 12,
+    color: colors.gray[600],
+    marginBottom: 8,
   },
-  detailBox3: {
-    marginTop: 5,
-    width: width * 0.95,
-    backgroundColor: colors.white,
-    borderRadius: 12,
+  loadingIndicator: {
+    flex: 1,
+    justifyContent: "center",
     alignItems: "center",
-    elevation: 5,
-    zIndex: 1,
-    paddingTop: 10,
-    paddingBottom: 10,
-    gap: 5,
-    marginBottom: 50,
+  },
+  errorText: {
+    flex: 1,
+    textAlign: "center",
+    marginTop: 50,
   },
 });

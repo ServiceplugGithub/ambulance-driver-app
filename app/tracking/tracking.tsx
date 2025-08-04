@@ -300,7 +300,7 @@ export default TrackingSection;
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: colors.green[300],
+    backgroundColor: colors.white,
     flex: 1,
   },
   profileSection: {

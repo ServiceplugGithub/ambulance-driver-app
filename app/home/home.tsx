@@ -7,12 +7,12 @@ import { startLiveLocationTracking } from "@/components/live-tracker";
 import TripDecisionModal from "@/components/Modal/NewTrip";
 import StepTracker from "@/components/step-indicator";
 import TripLogsSection from "@/components/trip-logs/index";
+import { fontFamily } from "@/constants/fonts";
 import { RootState } from "@/store";
 import { setAssignedCase } from "@/store/assignedCaseData";
 import { getReportedCasesApi } from "@/store/caseReported/CaseReportedApi";
 import { startBackgroundLocation } from "@/store/location/Location";
 import { changeVehicleAvailabilityApi } from "@/store/toogleButton/ToogleButtonApi";
-import { getDeviceId } from "@/utils/config";
 import { colors } from "@/utils/constants/colors";
 import { createSocket } from "@/utils/socket/socket";
 import { getStorage } from "@/utils/storage";
@@ -20,14 +20,7 @@ import { Ionicons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { router } from "expo-router";
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import {
-  Dimensions,
-  Image,
-  StyleSheet,
-  Switch,
-  TouchableOpacity,
-  View,
-} from "react-native";
+import { Dimensions, ScrollView, StyleSheet, Switch, View } from "react-native";
 import { IconButton } from "react-native-paper";
 import { useDispatch, useSelector } from "react-redux";
 import { Socket } from "socket.io-client";
@@ -96,9 +89,6 @@ const Dashboard: React.FC<DashboardProps> = () => {
 
   const stepTracker = () => {
     if (assignedCase?.active) {
-      // const lastEvent = cases?.[0]?.events?.[cases[0].events.length - 1]?.event;
-      // const isActiveCase =
-      //   lastEvent !== "case finished" && lastEvent !== "case terminated";
       setStepTracker(true);
     } else {
       setStepTracker(false);
@@ -139,7 +129,6 @@ const Dashboard: React.FC<DashboardProps> = () => {
 
       newSocket.off("case_assigned");
       newSocket.on("case_assigned", (data) => {
-        // console.log("New Case Assigned:", data);
         if (!isMounted) return;
         setModalVisible(true);
         setModalData(data);
@@ -165,7 +154,10 @@ const Dashboard: React.FC<DashboardProps> = () => {
 
   useEffect(() => {
     const updateStatus = async () => {
-      const deviceId = await getDeviceId();
+      if (isEnabled) {
+        setStatus("ON");
+      } else setStatus("OFF");
+
       await dispatch(
         changeVehicleAvailabilityApi({
           driverId: "6853f0bf2fd5e36814c9cb5f",
@@ -180,7 +172,6 @@ const Dashboard: React.FC<DashboardProps> = () => {
   useEffect(() => {
     const updateStatus = async () => {
       const token = await AsyncStorage.getItem("token");
-      console.log(token);
     };
     updateStatus();
   }, []);
@@ -196,7 +187,6 @@ const Dashboard: React.FC<DashboardProps> = () => {
 
         if (typeof locationString === "string") {
           const location = JSON.parse(locationString);
-          console.log("Stored Location:", location);
         } else {
           console.warn("No valid location string found:", locationString);
         }
@@ -208,61 +198,84 @@ const Dashboard: React.FC<DashboardProps> = () => {
     fetchData();
   }, []);
 
+  const [status, setStatus] = useState("OFF");
+
   useEffect(() => {
-    if (fullResponse.user.status === "active") {
+    if (fullResponse?.user?.status === "active") {
       setIsEnabled(true);
+      setStatus("ON");
     } else setIsEnabled(false);
+    setStatus("OFF");
   }, [fullResponse]);
 
-  console.log(fullResponse, "kjhgf");
   if (loading) return <AppText>Loading...</AppText>;
   if (error) return <AppText>{error}</AppText>;
+
   return (
     <>
       <View style={styles.container}>
         <HeaderSection title="p" />
-        <View style={styles.innerContainer}>
-          <TouchableOpacity onPress={() => setModalVisible(true)}>
-            <Image
-              style={styles.Sp}
-              source={require("../../utils/images/Group_134.jpg")}
-            />
-          </TouchableOpacity>
-
-          <Switch
-            value={isEnabled}
-            onValueChange={setIsEnabled}
-            trackColor={{ false: "#767577", true: `${colors.primary}80` }}
-            thumbColor={isEnabled ? colors.primary : "#f4f3f4"}
-            style={styles.toggle}
+        <View style={styles.header}>
+          <IconButton
+            onPress={() => router.push({ pathname: "/profile/profile" })}
+            icon={() => (
+              <Ionicons color={colors.white} name="person-circle" size={43} />
+            )}
           />
-          <View style={styles.profileSection}>
-            <IconButton
-              onPress={() => router.push({ pathname: "/profile/profile" })}
-              icon={() => (
-                <Ionicons color={colors.white} name="person-circle" size={43} />
-              )}
+
+          <View style={styles.availabilityToggle}>
+            <AppText
+              style={[
+                styles.availabilityText,
+                { color: status === "ON" ? colors.primary : colors.red[500] },
+                { marginRight: status === "ON" ? 1 : 8 },
+              ]}
+            >
+              {status}
+            </AppText>
+            <Switch
+              value={isEnabled}
+              onValueChange={setIsEnabled}
+              trackColor={{ false: "#767577", true: `${colors.primary}80` }}
+              thumbColor={isEnabled ? colors.primary : "#f4f3f4"}
+              style={styles.switch}
             />
           </View>
+
+          {/* <Image
+            style={styles.logo}
+            source={require("../../utils/images/Group_134.jpg")}
+          /> */}
         </View>
-        <WeeklyReportChart data={cases} />
-        {onGoing && (
-          <StepTracker
-            currentStep={currentStep}
-            labels={stepLabels}
-            onGoing={true}
-          />
-        )}
-        <TripLogsSection logs={cases} />
+
+        <ScrollView style={styles.contentContainer}>
+          {onGoing && (
+            <View style={styles.card}>
+              <AppText style={styles.cardTitle}>Trip Progress</AppText>
+              <StepTracker
+                currentStep={currentStep}
+                labels={stepLabels}
+                onGoing={true}
+              />
+            </View>
+          )}
+
+          <View style={styles.card}>
+            <AppText style={styles.cardTitle}>Weekly Report</AppText>
+            <WeeklyReportChart data={cases} />
+          </View>
+
+          <View style={styles.card}>
+            <AppText style={styles.cardTitle}>Trip Logs</AppText>
+            <TripLogsSection logs={cases} />
+          </View>
+        </ScrollView>
+
         <TripDecisionModal
           data={modalData}
           visible={modalVisible}
-          onAccept={() => {
-            setModalVisible(false);
-          }}
-          onDecline={() => {
-            setModalVisible(false);
-          }}
+          onAccept={() => setModalVisible(false)}
+          onDecline={() => setModalVisible(false)}
           onClose={() => setModalVisible(false)}
         />
       </View>
@@ -275,23 +288,55 @@ export default Dashboard;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.green[300],
+    backgroundColor: colors.gray[100], // Using a more neutral, light gray
   },
-  innerContainer: {
+  header: {
     flexDirection: "row",
+    alignItems: "center",
     justifyContent: "space-between",
-    backgroundColor: colors.secondary,
+    backgroundColor: colors.secondary, // Assuming this is a dark color
+    paddingHorizontal: 16,
+    paddingVertical: 8,
   },
-  profileSection: {
-    padding: 5,
+  logo: {
+    height: 25,
+    width: 80,
+    // resizeMode: "contain",
   },
-  Sp: {
-    marginHorizontal: 10,
-    marginTop: 18,
+  availabilityToggle: {
+    flexDirection: "row",
+    alignItems: "center",
   },
-  toggle: {
-    paddingHorizontal: 60,
-    transform: [{ scaleX: 1.5 }, { scaleY: 1.5 }],
-    paddingVertical: 5,
+  availabilityText: {
+    fontSize: 12,
+    fontFamily: fontFamily[600],
+  },
+  switch: {
+    transform: [{ scaleX: 1.2 }, { scaleY: 1.2 }],
+  },
+  contentContainer: {
+    flex: 1,
+    padding: 16,
+    gap: 16,
+  },
+  card: {
+    backgroundColor: colors.white,
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 16, // Consistent spacing between cards
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 3.84,
+    elevation: 5,
+  },
+  cardTitle: {
+    fontSize: 18,
+    fontWeight: "bold",
+    color: colors.gray[800],
+    marginBottom: 12,
   },
 });

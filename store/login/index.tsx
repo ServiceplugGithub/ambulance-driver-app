@@ -4,14 +4,14 @@ import { loginUserApi } from "./LoginApi";
 
 interface LoginState {
   token: string;
-  user: null;
+  user: string;
   isLoggedIn: boolean;
   rawResponse: any; // NEW
 }
 
 const initialState: LoginState = {
   token: "",
-  user: null,
+  user: "",
   isLoggedIn: false,
   rawResponse: null,
 };
@@ -22,7 +22,7 @@ const loginSlice = createSlice({
   reducers: {
     logout: (state) => {
       state.token = "";
-      state.user = null;
+      state.user = "";
       state.isLoggedIn = false;
       state.rawResponse = null;
       AsyncStorage.removeItem("token");
