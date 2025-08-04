@@ -5,7 +5,7 @@ const BASE_URL = "https://emsplug.com/api";
 
 interface CaseUpdatePayload {
   event: string;
-  userId: string;
+  userId: any;
   data?: any;
 }
 

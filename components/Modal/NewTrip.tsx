@@ -1,6 +1,7 @@
 import { fontFamily } from "@/constants/fonts";
 import { postCaseUpdateApi } from "@/store/caseUpdates/CaseUpdatesApi";
 import { colors } from "@/utils/constants/colors";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Audio } from "expo-av";
 import { router } from "expo-router";
 import React, { useEffect, useRef } from "react";
@@ -69,23 +70,25 @@ const TripDecisionModal: React.FC<TripDecisionModalProps> = ({
 
   const handleAccept = async () => {
     await stopSound();
+    const user = await AsyncStorage.getItem("userId");
     onAccept();
     router.push("/tracking/tracking");
     dispatch(
       postCaseUpdateApi({
         event: "ambulance accepted",
-        userId: "6853f0bf2fd5e36814c9cb5f",
+        userId: user,
         data: data,
       })
     );
   };
   const handleDecline = async () => {
     await stopSound();
+    const user = await AsyncStorage.getItem("userId");
     onDecline();
     dispatch(
       postCaseUpdateApi({
         event: "ambulance rejected",
-        userId: "6853f0bf2fd5e36814c9cb5f",
+        userId: user,
         data: data,
       })
     );
