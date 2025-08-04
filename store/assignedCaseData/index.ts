@@ -1,11 +1,6 @@
-import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { createSlice } from "@reduxjs/toolkit";
 
-interface AssignedCaseState {
-  data: any;
-  caseDetails: any; // You can type this better later
-}
-
-const initialState: AssignedCaseState = {
+const initialState: any = {
   data: null,
   caseDetails: null,
 };
@@ -14,7 +9,7 @@ const assignedCaseSlice = createSlice({
   name: "assignedCase",
   initialState,
   reducers: {
-    setAssignedCase: (state, action: PayloadAction<any>) => {
+    setAssignedCase: (state, action: any) => {
       state.data = action.payload;
     },
   },

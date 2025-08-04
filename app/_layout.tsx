@@ -1,25 +1,24 @@
 import { useFonts } from "expo-font";
-import { Stack, useRouter } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
-import { Suspense, useEffect, useState } from "react";
+import { Suspense, useEffect } from "react";
 import "react-native-reanimated";
 
 import ErrorBoundary from "@/components/error-boundary";
 import LoadingScreen from "@/components/loading";
 import { Inter } from "@/constants/fonts";
-import { useColorScheme } from "@/hooks/useColorScheme";
-import { store } from "@/store";
+import { RootState, store } from "@/store";
+import { authAction } from "@/store/login";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import Toast from "react-native-toast-message";
-import { Provider } from "react-redux";
+import { Provider, useDispatch, useSelector } from "react-redux";
+import ApplicationNavigator from "./Application";
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
 
-export default function RootLayout() {
-  const colorScheme = useColorScheme();
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+function AppContent() {
+  const dispatch = useDispatch();
   const [loaded] = useFonts({
     [Inter.Black]: require("../assets/fonts/Inter/Inter-Black.ttf"),
     [Inter.Bold]: require("../assets/fonts/Inter/Inter-Bold.ttf"),
@@ -32,21 +31,25 @@ export default function RootLayout() {
     [Inter.Thin]: require("../assets/fonts/Inter/Inter-Thin.ttf"),
   });
 
-  const router = useRouter();
+  const { isInitialized } = useSelector(
+    (state: RootState) => state.login
+  );
 
   const initApp = async () => {
-    const accessToken = await AsyncStorage.getItem("token");
-    console.log("accesstoken", accessToken);
-    setIsAuthenticated(!!accessToken);
+    try {
+      const accessToken = await AsyncStorage.getItem("token");
+      const userId = await AsyncStorage.getItem("userId");
 
-    if (!accessToken) {
-      console.log("nAVIGATE TO AUTH");
-      router.replace({ pathname: "/auth/send-otp" });
-    } else {
-      console.log("navigating to home");
-      router.replace({ pathname: "/home/home" });
+      if (accessToken) {
+        dispatch(authAction.initialize({ isAuthenticated: true, user: userId }));
+      } else {
+        dispatch(authAction.initialize({ isAuthenticated: false, user: null }));
+      }
+    } catch (error) {
+      console.error("Initialization error:", error);
+    } finally {
+      await SplashScreen.hideAsync();
     }
-    SplashScreen.hideAsync();
   };
 
   useEffect(() => {
@@ -59,58 +62,22 @@ export default function RootLayout() {
     return null;
   }
 
-  const authRoute = () => {
-    return (
-      <Stack
-        screenOptions={{
-          headerShown: false,
-        }}
-      >
-        <Stack.Screen name="auth/verify-otp" />
-        <Stack.Screen name="auth/send-otp" />
-        <Stack.Screen
-          name="auth/user-not-found"
-          options={{
-            presentation: "modal",
-            animation: "slide_from_bottom",
-          }}
-        />
-      </Stack>
-    );
-  };
+  return (
+    <>
+      <ApplicationNavigator />
+      <Toast position="bottom" bottomOffset={20} />
+    </>
+  );
+}
 
-  const protectedRoute = () => {
-    return (
-      <Stack
-        screenOptions={{
-          headerShown: false,
-        }}
-      >
-        <Stack.Screen name="home/index" />
-        <Stack.Screen name="home/menu" />
-        <Stack.Screen name="home/plus" />
-        <Stack.Screen
-          name="location-prompt"
-          options={{
-            presentation: "modal",
-            animation: "slide_from_bottom",
-          }}
-        />
-
-        {/* <Stack.Screen name="+not-found" /> */}
-      </Stack>
-    );
-  };
-  console.log(isAuthenticated, "<=======Auth");
-
+export default function RootLayout() {
   return (
     <Provider store={store}>
       <SafeAreaProvider>
         <ErrorBoundary>
           <Suspense fallback={<LoadingScreen />}>
-            {isAuthenticated ? protectedRoute() : authRoute()}
+            <AppContent />
           </Suspense>
-          <Toast position="bottom" bottomOffset={20} />
         </ErrorBoundary>
       </SafeAreaProvider>
     </Provider>

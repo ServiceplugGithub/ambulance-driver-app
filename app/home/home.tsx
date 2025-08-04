@@ -1,5 +1,3 @@
-/* eslint-disable react/no-unescaped-entities */
-/* eslint-disable react-native/no-color-literals */
 import AppText from "@/components/AppText";
 import WeeklyReportChart from "@/components/bar-chart/index";
 import HeaderSection from "@/components/Header";
@@ -10,7 +8,7 @@ import TripLogsSection from "@/components/trip-logs/index";
 import { fontFamily } from "@/constants/fonts";
 import { RootState } from "@/store";
 import { setAssignedCase } from "@/store/assignedCaseData";
-import { getReportedCasesApi } from "@/store/caseReported/CaseReportedApi";
+import { getReportedCasesApi } from "@/store/CaseReported/CaseReportedApi";
 import { startBackgroundLocation } from "@/store/location/Location";
 import { changeVehicleAvailabilityApi } from "@/store/toogleButton/ToogleButtonApi";
 import { colors } from "@/utils/constants/colors";

@@ -1,3 +1,4 @@
+/* eslint-disable react/no-unescaped-entities */
 import { Link, Stack } from 'expo-router';
 import { StyleSheet } from 'react-native';
 

@@ -80,7 +80,7 @@ const SendOtpScreen = () => {
         type: "success",
         text1: "Login successful",
       });
-      router.navigate("/location-prompt");
+      router.replace("/location-prompt");
     } catch (error) {
       Toast.show({
         type: "error",
