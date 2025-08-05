@@ -8,14 +8,14 @@ import TripLogsSection from "@/components/trip-logs/index";
 import { fontFamily } from "@/constants/fonts";
 import { RootState } from "@/store";
 import { setAssignedCase } from "@/store/assignedCaseData";
-import { getReportedCasesApi } from "@/store/CaseReported/CaseReportedApi";
+import { getReportedCasesApi } from "@/store/caseReported/CaseReportedApi";
 import { startBackgroundLocation } from "@/store/location/Location";
 import { changeVehicleAvailabilityApi } from "@/store/toogleButton/ToogleButtonApi";
 import { colors } from "@/utils/constants/colors";
 import { createSocket } from "@/utils/socket/socket";
 import { getStorage } from "@/utils/storage";
 import { Ionicons } from "@expo/vector-icons";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+// import AsyncStorage from "@react-native-async-storage/async-storage";
 import { router } from "expo-router";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Dimensions, ScrollView, StyleSheet, Switch, View } from "react-native";
@@ -169,7 +169,7 @@ const Dashboard: React.FC<DashboardProps> = () => {
 
   useEffect(() => {
     const updateStatus = async () => {
-      const token = await AsyncStorage.getItem("token");
+      // const token = await AsyncStorage.getItem("token");
     };
     updateStatus();
   }, []);

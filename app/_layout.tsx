@@ -1,24 +1,28 @@
 import { useFonts } from "expo-font";
 import * as SplashScreen from "expo-splash-screen";
-import { Suspense, useEffect } from "react";
+import { Suspense, useEffect, useState } from "react";
 import "react-native-reanimated";
 
 import ErrorBoundary from "@/components/error-boundary";
 import LoadingScreen from "@/components/loading";
+import NoInternetScreen from "@/components/noInternet";
+import { useLocationPermission } from "@/components/noLocation";
 import { Inter } from "@/constants/fonts";
 import { RootState, store } from "@/store";
 import { authAction } from "@/store/login";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import NetInfo from "@react-native-community/netinfo";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import Toast from "react-native-toast-message";
 import { Provider, useDispatch, useSelector } from "react-redux";
 import ApplicationNavigator from "./Application";
 
-// Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
 
 function AppContent() {
   const dispatch = useDispatch();
+  const [isConnected, setIsConnected] = useState(true);
+
   const [loaded] = useFonts({
     [Inter.Black]: require("../assets/fonts/Inter/Inter-Black.ttf"),
     [Inter.Bold]: require("../assets/fonts/Inter/Inter-Bold.ttf"),
@@ -31,9 +35,7 @@ function AppContent() {
     [Inter.Thin]: require("../assets/fonts/Inter/Inter-Thin.ttf"),
   });
 
-  const { isInitialized } = useSelector(
-    (state: RootState) => state.login
-  );
+  const { isInitialized } = useSelector((state: RootState) => state.login);
 
   const initApp = async () => {
     try {
@@ -41,7 +43,9 @@ function AppContent() {
       const userId = await AsyncStorage.getItem("userId");
 
       if (accessToken) {
-        dispatch(authAction.initialize({ isAuthenticated: true, user: userId }));
+        dispatch(
+          authAction.initialize({ isAuthenticated: true, user: userId })
+        );
       } else {
         dispatch(authAction.initialize({ isAuthenticated: false, user: null }));
       }
@@ -53,14 +57,22 @@ function AppContent() {
   };
 
   useEffect(() => {
+    const unsubscribe = NetInfo.addEventListener((state) => {
+      setIsConnected(state.isConnected ?? false);
+    });
+
+    return () => unsubscribe();
+  }, []);
+
+  useEffect(() => {
     if (loaded) {
       initApp();
     }
   }, [loaded]);
 
-  if (!loaded) {
-    return null;
-  }
+  if (!loaded) return null;
+
+  if (!isConnected) return <NoInternetScreen />;
 
   return (
     <>
@@ -71,6 +83,7 @@ function AppContent() {
 }
 
 export default function RootLayout() {
+  useLocationPermission();
   return (
     <Provider store={store}>
       <SafeAreaProvider>

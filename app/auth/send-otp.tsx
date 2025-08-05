@@ -24,7 +24,6 @@ import { fontFamily } from "@/constants/fonts";
 import { FormInputType } from "@/enums/form-input.enum";
 import { useThemeColor } from "@/hooks/useThemeColor";
 import { loginUserApi } from "@/store/login/LoginApi";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useRouter } from "expo-router";
 import Toast from "react-native-toast-message";
 import { useDispatch } from "react-redux";
@@ -73,8 +72,8 @@ const SendOtpScreen = () => {
       setLoading(true);
       const result = await dispatch(loginUserApi(data)).unwrap();
 
-      await AsyncStorage.setItem("token", result.token);
-      await AsyncStorage.setItem("userId", result.user._id);
+      // await AsyncStorage.setItem("token", result.token);
+      // await AsyncStorage.setItem("userId", result.user._id);
 
       Toast.show({
         type: "success",
