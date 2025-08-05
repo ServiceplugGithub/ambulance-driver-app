@@ -8,7 +8,7 @@ import TripLogsSection from "@/components/trip-logs/index";
 import { fontFamily } from "@/constants/fonts";
 import { RootState } from "@/store";
 import { setAssignedCase } from "@/store/assignedCaseData";
-import { getReportedCasesApi } from "@/store/caseReported/CaseReportedApi";
+import { getReportedCasesApi } from "@/store/CaseReported/CaseReportedApi";
 import { startBackgroundLocation } from "@/store/location/Location";
 import { changeVehicleAvailabilityApi } from "@/store/toogleButton/ToogleButtonApi";
 import { colors } from "@/utils/constants/colors";
@@ -215,7 +215,7 @@ const Dashboard: React.FC<DashboardProps> = () => {
         <HeaderSection title="p" />
         <View style={styles.header}>
           <IconButton
-            onPress={() => router.push({ pathname: "/profile/profile" })}
+            onPress={() => router.navigate({ pathname: "/profile/profile" })}
             icon={() => (
               <Ionicons color={colors.white} name="person-circle" size={43} />
             )}
@@ -287,6 +287,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: colors.gray[100], // Using a more neutral, light gray
+    // marginVertical: 20
   },
   header: {
     flexDirection: "row",

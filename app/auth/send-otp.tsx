@@ -23,7 +23,10 @@ import { blurhash } from "@/constants/common";
 import { fontFamily } from "@/constants/fonts";
 import { FormInputType } from "@/enums/form-input.enum";
 import { useThemeColor } from "@/hooks/useThemeColor";
+import { authAction } from "@/store/login";
 import { loginUserApi } from "@/store/login/LoginApi";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { unwrapResult } from "@reduxjs/toolkit";
 import { useRouter } from "expo-router";
 import Toast from "react-native-toast-message";
 import { useDispatch } from "react-redux";
@@ -70,16 +73,20 @@ const SendOtpScreen = () => {
   const onSubmit = async (data: FormData) => {
     try {
       setLoading(true);
-      const result = await dispatch(loginUserApi(data)).unwrap();
+      let result = await dispatch(loginUserApi(data));
+      result = unwrapResult(result);
+      console.log(result,"Safmwlek")
 
-      // await AsyncStorage.setItem("token", result.token);
-      // await AsyncStorage.setItem("userId", result.user._id);
+      await AsyncStorage.setItem("token", result.token);
+      await AsyncStorage.setItem("userId", result.user._id);
+      await dispatch(
+        authAction.initialize({ isAuthenticated: true, user: result.user._id })
+      );
 
       Toast.show({
         type: "success",
         text1: "Login successful",
       });
-      router.replace("/location-prompt");
     } catch (error) {
       Toast.show({
         type: "error",

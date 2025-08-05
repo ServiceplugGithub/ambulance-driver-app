@@ -1,12 +1,11 @@
 import { useFonts } from "expo-font";
 import * as SplashScreen from "expo-splash-screen";
-import { Suspense, useEffect, useState } from "react";
+import React, { Suspense, useEffect, useState } from "react";
 import "react-native-reanimated";
 
 import ErrorBoundary from "@/components/error-boundary";
 import LoadingScreen from "@/components/loading";
 import NoInternetScreen from "@/components/noInternet";
-import { useLocationPermission } from "@/components/noLocation";
 import { Inter } from "@/constants/fonts";
 import { RootState, store } from "@/store";
 import { authAction } from "@/store/login";
@@ -83,7 +82,7 @@ function AppContent() {
 }
 
 export default function RootLayout() {
-  useLocationPermission();
+  // useLocationPermission();
   return (
     <Provider store={store}>
       <SafeAreaProvider>

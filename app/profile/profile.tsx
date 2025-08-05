@@ -4,7 +4,7 @@ import { RootState } from "@/store";
 import { getUserProfileApi } from "@/store/profileSection/ProfileSectionApi";
 import { colors } from "@/utils/constants/colors";
 import { Ionicons } from "@expo/vector-icons";
-import { useEffect } from "react";
+import React, { useEffect } from "react";
 import {
   Dimensions,
   Image,
@@ -31,7 +31,7 @@ const ProfileSection = () => {
   if (loading) return <ActivityIndicator style={styles.loadingIndicator} />;
   if (error) return <Text style={styles.errorText}>{error}</Text>;
   if (!profile)
-    return <Text style={styles.errorText}>No profile data found</Text>;
+    return <AppText style={styles.errorText}>No profile data found</AppText>;
 
   return (
     <View style={styles.container}>
@@ -183,7 +183,7 @@ const styles = StyleSheet.create({
   },
   header: {
     backgroundColor: colors.secondary,
-    paddingTop: 50,
+    // paddingTop: 50,
     paddingBottom: 20,
     alignItems: "center",
   },
@@ -226,6 +226,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     paddingVertical: 12,
     borderBottomWidth: 1,
+    marginHorizontal: 8,
     borderBottomColor: colors.gray[200],
   },
   icon: {

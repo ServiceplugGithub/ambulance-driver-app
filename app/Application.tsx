@@ -1,16 +1,19 @@
 import { RootState } from "@/store";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import React from "react";
 import { useSelector } from "react-redux";
 import SendOtpScreen from "./auth/send-otp";
 import Dashboard from "./home/home";
 import LocationPromptScreen from "./location-prompt";
+import ProfileSection from "./profile/profile";
 import SplashScreen from "./SplashScreen";
-
 
 const Stack = createNativeStackNavigator<any>();
 
 const ApplicationNavigator: React.FC = () => {
-  const { isAuthenticated, isInitialized } = useSelector((state: RootState) => state.login);
+  const { isAuthenticated, isInitialized } = useSelector(
+    (state: RootState) => state.login
+  );
 
   if (!isInitialized) {
     return <SplashScreen />;
@@ -20,10 +23,7 @@ const ApplicationNavigator: React.FC = () => {
     <Stack.Navigator>
       {!isAuthenticated ? (
         <Stack.Group screenOptions={{ headerShown: false }}>
-          <Stack.Screen 
-            name="auth/send-otp" 
-            component={SendOtpScreen} 
-          />
+          <Stack.Screen name="auth/send-otp" component={SendOtpScreen} />
           {/* <Stack.Screen
             name={navigateConst.AUTH.OTP_VERIFY}
             component={OtpVerifyScreen}
@@ -39,18 +39,6 @@ const ApplicationNavigator: React.FC = () => {
         </Stack.Group>
       ) : (
         <Stack.Group screenOptions={{ headerShown: false }}>
-          <Stack.Screen 
-            name="home/home" 
-            component={Dashboard} 
-          />
-          {/* <Stack.Screen 
-            name="home/menu" 
-            component={MenuScreen} 
-          />
-          <Stack.Screen 
-            name="home/plus" 
-            component={PlusScreen} 
-          /> */}
           <Stack.Screen
             name="location-prompt"
             component={LocationPromptScreen}
@@ -59,6 +47,16 @@ const ApplicationNavigator: React.FC = () => {
               animation: "slide_from_bottom",
             }}
           />
+          <Stack.Screen name="home/home" component={Dashboard} />
+          <Stack.Screen name="profile/profile" component={ProfileSection} />
+          {/* <Stack.Screen 
+            name="home/menu" 
+            component={MenuScreen} 
+          />
+          <Stack.Screen 
+            name="home/plus" 
+            component={PlusScreen} 
+          /> */}
         </Stack.Group>
       )}
     </Stack.Navigator>
