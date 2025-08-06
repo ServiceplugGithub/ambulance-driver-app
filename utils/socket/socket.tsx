@@ -1,8 +1,9 @@
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { io } from "socket.io-client";
 
 export const createSocket = async () => {
   // const deviceId = await getDeviceId();
-  const deviceId = "0dcb853c0283c629";
+  const deviceId = await AsyncStorage.getItem("deviceId");
 
   const socket = io("https://emsplug.com", {
     autoConnect: true,

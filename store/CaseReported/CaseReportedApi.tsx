@@ -6,25 +6,21 @@ const urls = {
   getReportedCases: '/cases/reported-cases-driver'
 };
 
-const DEVICE_ID = "6853f0bf2fd5e36814c9cb5f";
-
 export const getReportedCasesApi = createAsyncThunk(
   "ambulanceDriver/getReportedCasesApi",
   async (_, thunkAPI) => {
     try {
       const token = await AsyncStorage.getItem("token");
+      const userId = await AsyncStorage.getItem("userId");
       if (!token) {
         return thunkAPI.rejectWithValue("No token found");
       }
 
       const response = await axios.get(
-        `${urls.getReportedCases}/${DEVICE_ID}`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
+        `${urls.getReportedCases}/${userId}`,
       );
+      
+      console.log(response.data)
 
       return response.data;
     } catch (error: any) {

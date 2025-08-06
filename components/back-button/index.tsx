@@ -31,7 +31,6 @@ export default BackButton;
 const styles = StyleSheet.create({
   container: {
     flexDirection: "row",
-    marginTop: 0,
     // marginHorizontal: 5,
     justifyContent: "space-between",
     backgroundColor: colors.secondary,
@@ -41,7 +40,7 @@ const styles = StyleSheet.create({
     marginRight: 15,
   } as ImageStyle,
   innerContainer: {
-    marginTop: 30,
+    marginTop: 8,
     flexDirection: "row",
     gap: 220,
   },

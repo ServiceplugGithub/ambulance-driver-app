@@ -39,6 +39,7 @@ function AppContent() {
   const initApp = async () => {
     try {
       const accessToken = await AsyncStorage.getItem("token");
+      console.log(accessToken,"dlewmkl")
       const userId = await AsyncStorage.getItem("userId");
 
       if (accessToken) {

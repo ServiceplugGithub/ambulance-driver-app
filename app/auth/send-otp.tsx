@@ -25,7 +25,7 @@ import { FormInputType } from "@/enums/form-input.enum";
 import { useThemeColor } from "@/hooks/useThemeColor";
 import { authAction } from "@/store/login";
 import { loginUserApi } from "@/store/login/LoginApi";
-import { setSession } from "@/utils/config";
+import { getDeviceId, setSession } from "@/utils/config";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { unwrapResult } from "@reduxjs/toolkit";
 import { useRouter } from "expo-router";
@@ -72,15 +72,18 @@ const SendOtpScreen = () => {
 
   const dispatch = useDispatch<any>();
 
-  const onSubmit = async (data: FormData) => {
-    console.log("dlewn")
+  const onSubmit = async (data: any) => {
     try {
       setLoading(true);
       let result = await dispatch(loginUserApi(data));
       result = unwrapResult(result);
       console.log(result,"Safmwlek")
 
+      const deviceId = await getDeviceId();
+      console.log(deviceId,"Saflwekm")
       await setSession(result?.token);
+      await AsyncStorage.setItem("deviceId", deviceId);
+      await AsyncStorage.setItem("token", result.token);
       await AsyncStorage.setItem("userId", result.user._id);
       await dispatch(
         authAction.initialize({ isAuthenticated: true, user: result.user._id })

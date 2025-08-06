@@ -1,19 +1,20 @@
-import { localStorageKey, secureStorageKey } from "@/constants/common";
+import { localStorageKey } from "@/constants/common";
+import * as Application from 'expo-application';
+import { Platform } from "react-native";
 import "react-native-get-random-values";
-import { v4 as uuidv4 } from "uuid";
 import axiosInstance from "./axios-instance";
-import { setSecureStorage, setStorage } from "./storage";
+import { setStorage } from "./storage";
 
-export const getDeviceId = async () => {
-  // let deviceId = await SecureStore.getItemAsync(secureStorageKey.deviceId);
-  let deviceId = '0dcb853c0283c629'
-  //if user has already signed up prior
-  if (deviceId) {
-    return deviceId;
-  } else {
-    deviceId = uuidv4();
-    await setSecureStorage(secureStorageKey.deviceId, deviceId);
-    return deviceId;
+export const getDeviceId = async (): Promise<any> => {
+  try {
+    if (Platform.OS === 'android') {
+      return await Application.getAndroidId(); // Correct async method
+    } else {
+      return await Application.getIosIdForVendorAsync(); // iOS method
+    }
+  } catch (error) {
+    console.error('Error getting device ID:', error);
+    return 'unknown-device-id';
   }
 };
 

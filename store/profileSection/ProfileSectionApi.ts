@@ -1,17 +1,17 @@
 import axios from "@/utils/axios-instance";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { createAsyncThunk } from "@reduxjs/toolkit";
 
 const urls = {
   getUserProfile: "/auth/profile",
 };
 
-const DEVICE_ID = "6853f0bf2fd5e36814c9cb5f";
-
 export const getUserProfileApi = createAsyncThunk(
   "profile/getUserProfileApi",
   async (_, thunkApi) => {
     try {
-      const res = await axios.get(`${urls.getUserProfile}/${DEVICE_ID}`);
+      const userId = await AsyncStorage.getItem("userId");
+      const res = await axios.get(`${urls.getUserProfile}/${userId}`);
 
       if (Array.isArray(res.data) && res.data.length > 0) {
         return res.data[0];
