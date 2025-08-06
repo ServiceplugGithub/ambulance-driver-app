@@ -1,12 +1,15 @@
+import axios from "@/utils/axios-instance";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { createAsyncThunk } from "@reduxjs/toolkit";
-import axios from "axios";
 
-const BASE_URL = "https://emsplug.com/api";
+const urls = {
+  getReportedCases: '/cases/reported-cases-driver'
+};
+
 const DEVICE_ID = "6853f0bf2fd5e36814c9cb5f";
 
 export const getReportedCasesApi = createAsyncThunk(
-  "reportedCases/fetch",
+  "ambulanceDriver/getReportedCasesApi",
   async (_, thunkAPI) => {
     try {
       const token = await AsyncStorage.getItem("token");
@@ -15,7 +18,7 @@ export const getReportedCasesApi = createAsyncThunk(
       }
 
       const response = await axios.get(
-        `${BASE_URL}/cases/reported-cases-driver/${DEVICE_ID}`,
+        `${urls.getReportedCases}/${DEVICE_ID}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,

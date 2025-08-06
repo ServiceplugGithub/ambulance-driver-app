@@ -1,3 +1,6 @@
+/* eslint-disable react-hooks/rules-of-hooks */
+import { HOME } from "@/app/navigators/navigationConst";
+import { navigate } from "@/app/navigators/Root";
 import AppText from "@/components/AppText";
 import BackButton from "@/components/back-button/index";
 import StepDecisionModal from "@/components/Modal/steperModal";
@@ -6,7 +9,6 @@ import { RootState } from "@/store";
 import { postCaseUpdateApi } from "@/store/caseUpdates/CaseUpdatesApi";
 import { colors } from "@/utils/constants/colors";
 import * as Location from "expo-location";
-import { router } from "expo-router";
 import React, { useEffect, useMemo, useState } from "react";
 import { ScrollView, StyleSheet, TouchableOpacity, View } from "react-native";
 import MapView, { Marker } from "react-native-maps";
@@ -244,7 +246,7 @@ const TrackingSection = () => {
                 handleTerminate();
                 setStepIndex(0);
                 setList(stepLabels[0]);
-                router.push({ pathname: "/home/home" });
+                navigate(HOME)
               }}
             >
               <View style={styles.button2}>
@@ -279,7 +281,7 @@ const TrackingSection = () => {
           if (currentLabel === "Finish Case") {
             setStepIndex(0);
             setList(stepLabels[0]);
-            router.push({ pathname: "/home/home" });
+            navigate(HOME)
           } else {
             setStepIndex((prev) => prev + 1);
             setList(stepLabels[stepIndex + 1]);

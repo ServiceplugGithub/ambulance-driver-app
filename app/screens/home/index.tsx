@@ -1,6 +1,7 @@
+import { PROFILE } from "@/app/navigators/navigationConst";
+import { navigate } from "@/app/navigators/Root";
 import AppText from "@/components/AppText";
 import WeeklyReportChart from "@/components/bar-chart/index";
-import HeaderSection from "@/components/Header";
 import { startLiveLocationTracking } from "@/components/live-tracker";
 import TripDecisionModal from "@/components/Modal/NewTrip";
 import StepTracker from "@/components/step-indicator";
@@ -16,14 +17,13 @@ import { createSocket } from "@/utils/socket/socket";
 import { getStorage } from "@/utils/storage";
 import { Ionicons } from "@expo/vector-icons";
 // import AsyncStorage from "@react-native-async-storage/async-storage";
-import { router } from "expo-router";
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import { Dimensions, ScrollView, StyleSheet, Switch, View } from "react-native";
+import { ScrollView, StyleSheet, Switch, View } from "react-native";
 import { IconButton } from "react-native-paper";
 import { useDispatch, useSelector } from "react-redux";
 import { Socket } from "socket.io-client";
+import useCommon from '../../hooks/useCommon';
 
-const screenWidth = Dimensions.get("window").width;
 const data = {
   case_accepted_at: "2024-05-01T10:00:00",
   ambulance_assigned: "2024-05-01T10:05:00",
@@ -35,6 +35,7 @@ const data = {
 interface DashboardProps {}
 
 const Dashboard: React.FC<DashboardProps> = () => {
+  const { toggleBackdrop } = useCommon();
   const socketRef = useRef<Socket | null>(null);
   const stepLabels = useMemo(
     () => [
@@ -46,16 +47,6 @@ const Dashboard: React.FC<DashboardProps> = () => {
     ],
     []
   );
-
-  const [list, setList] = useState("");
-
-  const labels = [
-    "Reported",
-    "Assigned",
-    "Departed",
-    "Arrived at Location",
-    "Reached Hospital",
-  ];
 
   const getCurrentStep = (data: any): number => {
     if (!data) return -1;
@@ -98,7 +89,9 @@ const Dashboard: React.FC<DashboardProps> = () => {
   }, [assignedCase, cases]);
 
   useEffect(() => {
+    toggleBackdrop();
     dispatch(getReportedCasesApi());
+    toggleBackdrop();
   }, []);
 
   const [modalData, setModalData] = useState("");
@@ -182,6 +175,7 @@ const Dashboard: React.FC<DashboardProps> = () => {
     const fetchData = async () => {
       try {
         const locationString = await getStorage("user_location_info");
+        console.log(locationString,"asfdmwekl")
 
         if (typeof locationString === "string") {
           const location = JSON.parse(locationString);
@@ -206,16 +200,20 @@ const Dashboard: React.FC<DashboardProps> = () => {
     setStatus("OFF");
   }, [fullResponse]);
 
-  if (loading) return <AppText>Loading...</AppText>;
+  // if (loading) return (
+  //   <>
+  //     <AppText>asmdfkelw</AppText>
+  //     <AppText>Loading...</AppText>
+  //   </>
+  // );
   if (error) return <AppText>{error}</AppText>;
 
   return (
     <>
       <View style={styles.container}>
-        <HeaderSection title="p" />
         <View style={styles.header}>
           <IconButton
-            onPress={() => router.navigate({ pathname: "/profile/profile" })}
+            onPress={() => navigate(PROFILE)}
             icon={() => (
               <Ionicons color={colors.white} name="person-circle" size={43} />
             )}
@@ -316,13 +314,13 @@ const styles = StyleSheet.create({
   contentContainer: {
     flex: 1,
     padding: 16,
-    gap: 16,
+    gap: 4,
   },
   card: {
     backgroundColor: colors.white,
     borderRadius: 12,
     padding: 16,
-    marginBottom: 16, // Consistent spacing between cards
+    marginBottom: 4, // Consistent spacing between cards
     shadowColor: "#000",
     shadowOffset: {
       width: 0,

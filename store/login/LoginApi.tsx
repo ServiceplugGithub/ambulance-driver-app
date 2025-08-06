@@ -1,30 +1,15 @@
+import axios from "@/utils/axios-instance";
 import { createAsyncThunk } from "@reduxjs/toolkit";
-import axios from "axios";
 
-const BASE_URL = "https://emsplug.com/api";
+const urls = {
+  loginUser: '/auth/login'
+};
 
-interface LoginParams {
-  email: string;
-  password: string;
-  usertype: string;
-}
 
-interface LoginResponse {
-  token: string;
-  user: any;
-}
-
-export const loginUserApi = createAsyncThunk<
-  LoginResponse,
-  LoginParams,
-  { rejectValue: string }
->("auth/loginUserApi", async (params, thunkApi) => {
+export const loginUserApi = createAsyncThunk("ambulanceDriver/loginUserApi", async (params, thunkApi) => {
   try {
-    const response = await axios.post<LoginResponse>(
-      `${BASE_URL}/auth/login`,
-      params
-    );
-    if (response.data?.token && response.data?.user) {
+    const response = await axios.post(`${urls?.loginUser}`, params);
+    if (response.data) {
       return response.data;
     }
 

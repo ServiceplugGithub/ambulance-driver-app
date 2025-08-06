@@ -1,8 +1,9 @@
+import { navigate } from "@/app/navigators/Root";
+import { TRACKING } from "@/app/navigators/navigationConst";
 import { fontFamily } from "@/constants/fonts";
 import { postCaseUpdateApi } from "@/store/caseUpdates/CaseUpdatesApi";
 import { colors } from "@/utils/constants/colors";
 import { Audio } from "expo-av";
-import { router } from "expo-router";
 import React, { useEffect, useRef } from "react";
 import {
   Modal,
@@ -70,7 +71,7 @@ const TripDecisionModal: React.FC<TripDecisionModalProps> = ({
   const handleAccept = async () => {
     await stopSound();
     onAccept();
-    router.push("/tracking/tracking");
+    navigate(TRACKING);
     dispatch(
       postCaseUpdateApi({
         event: "ambulance accepted",

@@ -32,10 +32,9 @@ interface TripLogsSectionProps {
 
 const TripLogsSection: React.FC<TripLogsSectionProps> = ({ logs }) => {
   return (
-    <View style={styles.listBox}>
-      <View style={styles.listHeader}>
-        {/* <AppText style={styles.headerText}>Details</AppText> */}
-      </View>
+    <View>
+      {/* <View style={styles.listHeader}>
+      </View> */}
       <ScrollView>
         {logs.map((log) => (
           <View key={log.caseID} style={styles.logItem}>
@@ -81,19 +80,6 @@ const TripLogsSection: React.FC<TripLogsSectionProps> = ({ logs }) => {
 export default TripLogsSection;
 
 const styles = StyleSheet.create({
-  listBox: {
-    // flex: 1,
-    // marginTop: 30,
-    // backgroundColor: colors.white,
-    // borderTopLeftRadius: 40,
-    // borderTopRightRadius: 40,
-    // elevation: 10,
-  },
-  listHeader: {
-    borderBottomWidth: 0.5,
-    // padding: 20,
-    borderBottomColor: colors.borderBottom,
-  },
   headerText: {
     alignSelf: "center",
     fontSize: 18,
@@ -101,9 +87,17 @@ const styles = StyleSheet.create({
   },
   logItem: {
     padding: 20,
-    borderBottomColor: colors.borderBottom,
-    borderWidth: 0.2,
+    // borderBottomColor: colors.borderBottom,
+    // borderWidth: 0.2,
     borderRadius: 5,
+    backgroundColor: '#FFF',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 3,
+    elevation: 5,
+    marginVertical: 4,
+    marginHorizontal: 4
   },
   logText: {
     fontSize: 16,

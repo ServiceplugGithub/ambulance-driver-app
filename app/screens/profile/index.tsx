@@ -4,17 +4,18 @@ import { RootState } from "@/store";
 import { getUserProfileApi } from "@/store/profileSection/ProfileSectionApi";
 import { colors } from "@/utils/constants/colors";
 import { Ionicons } from "@expo/vector-icons";
+import { Image } from "expo-image";
 import React, { useEffect } from "react";
 import {
-  Dimensions,
-  Image,
   ScrollView,
   StyleSheet,
   Text,
-  View,
+  View
 } from "react-native";
 import { ActivityIndicator } from "react-native-paper";
 import { useDispatch, useSelector } from "react-redux";
+
+const IMAGE_SIZE = 120;
 
 const ProfileSection = () => {
   const dispatch = useDispatch<any>();
@@ -40,7 +41,7 @@ const ProfileSection = () => {
       <View style={styles.header}>
         <View style={styles.profileImageContainer}>
           <Image
-            source={require("../../utils/images/driver-uniform.jpeg")}
+            source={require('@/assets/images/driver-uniform.jpeg')}
             style={styles.profileImage}
           />
         </View>
@@ -172,9 +173,6 @@ const ProfileSection = () => {
 };
 
 export default ProfileSection;
-
-const { width } = Dimensions.get("window");
-const IMAGE_SIZE = 120;
 
 const styles = StyleSheet.create({
   container: {

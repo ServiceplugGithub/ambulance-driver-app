@@ -1,18 +1,17 @@
 /* eslint-disable react-native/no-color-literals */
 /* eslint-disable react-native/no-inline-styles */
 /* eslint-disable react-hooks/exhaustive-deps */
-import React, { useState, useCallback, useEffect, memo, useMemo, useRef } from 'react';
-import { Dimensions } from 'react-native';
-import ActionSheet from 'react-native-actions-sheet';
-import Ionicons from 'react-native-vector-icons/Ionicons';
-import { Button, IconButton, Chip, HelperText, List, Searchbar, TextInput } from 'react-native-paper';
-import { View, StyleSheet, FlatList, ActivityIndicator, ScrollView, Pressable } from 'react-native';
-import _ from 'lodash';
-import FuzzySearch from 'fuzzy-search';
-import { colors } from 'utils/constants/colors';
 import { AppText } from 'components/shared-component';
-import { fontFamily } from 'utils/constants/baseStyles';
+import FuzzySearch from 'fuzzy-search';
+import _ from 'lodash';
+import React, { memo, useEffect, useMemo, useRef, useState } from 'react';
+import { Dimensions, FlatList, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import ActionSheet from 'react-native-actions-sheet';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
+import { Button, Chip, HelperText, List, Searchbar, TextInput } from 'react-native-paper';
+import Ionicons from 'react-native-vector-icons/Ionicons';
+import { fontFamily } from 'utils/constants/baseStyles';
+import { colors } from 'utils/constants/colors';
 // import styles from 'sections/media-banner/styles';
 
 const screenWidth = Dimensions.get('screen').width;
@@ -237,7 +236,6 @@ const SearchSelectInput = (props) => {
             <FlatList
               width="100%"
               style={{ marginBottom: 80 }}
-              // eslint-disable-next-line react-native/no-inline-styles
               contentContainerStyle={{ width: '100%', alignItems: 'flex-start' }}
               data={filteredOptions}
               keyExtractor={(item, index) => item[optionKey] || `opt_${index}`}

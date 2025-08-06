@@ -1,20 +1,15 @@
+import axios from "@/utils/axios-instance";
 import { createAsyncThunk } from "@reduxjs/toolkit";
-import axios from "axios";
 
-const BASE_URL = "https://emsplug.com/api";
-
-interface CaseUpdatePayload {
-  event: string;
-  userId: string;
-  data?: any;
-}
+const urls = {
+  postCaseUpdate: '/cases/case-updates'
+};
 
 export const postCaseUpdateApi = createAsyncThunk(
-  "caseUpdate/post",
-  async (payload: CaseUpdatePayload, thunkAPI) => {
+  "ambulanceDriver/postCaseUpdateApi",
+  async (payload: any, thunkAPI) => {
     try {
-      console.log(payload, '<====Payload')
-      const response = await axios.post(`${BASE_URL}/cases/case-updates`, payload);
+      const response = await axios.post(`${urls?.postCaseUpdate}`, payload);
       return response.data;
     } catch (error: any) {
       return thunkAPI.rejectWithValue(

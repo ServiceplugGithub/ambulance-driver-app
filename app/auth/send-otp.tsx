@@ -5,7 +5,7 @@ import {
   Platform,
   ScrollView,
   StyleSheet,
-  View,
+  View
 } from "react-native";
 
 import RenderFormElement from "@/components/form-builder";
@@ -25,19 +25,21 @@ import { FormInputType } from "@/enums/form-input.enum";
 import { useThemeColor } from "@/hooks/useThemeColor";
 import { authAction } from "@/store/login";
 import { loginUserApi } from "@/store/login/LoginApi";
+import { setSession } from "@/utils/config";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { unwrapResult } from "@reduxjs/toolkit";
 import { useRouter } from "expo-router";
 import Toast from "react-native-toast-message";
 import { useDispatch } from "react-redux";
+import { AUTH } from "../navigators/navigationConst";
+import { navigate } from "../navigators/Root";
 
 const schema = z.object({
   email: z.string().email({ message: "Enter a valid email address" }),
 
   password: z
     .string()
-    .min(5, { message: "Password must be at least 5 digits" })
-    .regex(/^\d+$/, { message: "Password must contain only numbers" }),
+    .min(1, { message: "Password is required" }),
 
   usertype: z.literal("driver"),
 });
@@ -71,13 +73,14 @@ const SendOtpScreen = () => {
   const dispatch = useDispatch<any>();
 
   const onSubmit = async (data: FormData) => {
+    console.log("dlewn")
     try {
       setLoading(true);
       let result = await dispatch(loginUserApi(data));
       result = unwrapResult(result);
       console.log(result,"Safmwlek")
 
-      await AsyncStorage.setItem("token", result.token);
+      await setSession(result?.token);
       await AsyncStorage.setItem("userId", result.user._id);
       await dispatch(
         authAction.initialize({ isAuthenticated: true, user: result.user._id })
@@ -93,6 +96,7 @@ const SendOtpScreen = () => {
         text1:
           typeof error === "string" ? error : "Login failed. Please try again.",
       });
+      navigate(AUTH.NOT_FOUND_SCREEN)
     } finally {
       setLoading(false);
     }
@@ -135,34 +139,43 @@ const SendOtpScreen = () => {
               title="Welcome back"
             />
 
-            <RenderFormElement
-              formInputType={FormInputType.input}
-              control={control}
-              name="email"
-              placeholder="Enter Username"
-              autoCapitalize="none"
-              keyboardType="default"
-              textInputStyle={{
-                letterSpacing: 1.5,
-                fontFamily: fontFamily[500],
-                fontSize: 18,
-              }}
-              textAffixStyle={{
-                letterSpacing: 1.5,
-                fontFamily: fontFamily[500],
-                fontSize: 18,
-              }}
-              onChangeText={(value: string) => {
-                const allowedRegex = /^[a-zA-Z0-9@'.]*$/;
+            <View>
+              <RenderFormElement
+                formInputType={FormInputType.input}
+                control={control}
+                name="email"
+                placeholder="Enter Username"
+                autoCapitalize="none"
+                keyboardType="default"
+                touched={errors.email}
+                error={errors.email}
+                // textInputStyle={{
+                //   letterSpacing: 1.5,
+                //   fontFamily: fontFamily[500],
+                //   fontSize: 18,
+                //   borderColor: errors.email ? "red" : "gray",
+                //   borderWidth: 1,
+                //   borderRadius: 8,
+                //   padding: 12,
+                // }}
+                // textAffixStyle={{
+                //   letterSpacing: 1.5,
+                //   fontFamily: fontFamily[500],
+                //   fontSize: 18,
+                // }}
+                onChangeText={(value: string) => {
+                  const allowedRegex = /^[a-zA-Z0-9@'.]*$/;
 
-                if (allowedRegex.test(value)) {
-                  setValue("email", value, {
-                    shouldValidate: true,
-                    shouldDirty: true,
-                  });
-                }
-              }}
-            />
+                  if (allowedRegex.test(value)) {
+                    setValue("email", value, {
+                      shouldValidate: true,
+                      shouldDirty: true,
+                    });
+                  }
+                }}
+              />
+            </View>
+            
             <View style={style.pass}>
               <RenderFormElement
                 formInputType={FormInputType.input}
@@ -172,16 +185,22 @@ const SendOtpScreen = () => {
                 autoCapitalize="none"
                 secureTextEntry={true}
                 keyboardType="default"
-                textInputStyle={{
-                  letterSpacing: 1.2,
-                  fontFamily: fontFamily[500],
-                  fontSize: 18,
-                }}
-                textAffixStyle={{
-                  letterSpacing: 1.2,
-                  fontFamily: fontFamily[500],
-                  fontSize: 18,
-                }}
+                touched={errors.password}
+                error={errors.password}
+                // textInputStyle={{
+                //   letterSpacing: 1.2,
+                //   fontFamily: fontFamily[500],
+                //   fontSize: 18,
+                //   borderColor: errors.password ? "red" : "gray",
+                //   borderWidth: 1,
+                //   borderRadius: 8,
+                //   padding: 12,
+                // }}
+                // textAffixStyle={{
+                //   letterSpacing: 1.2,
+                //   fontFamily: fontFamily[500],
+                //   fontSize: 18,
+                // }}
                 onChangeText={(value: string) => {
                   setValue("password", value, {
                     shouldValidate: true,
@@ -190,14 +209,13 @@ const SendOtpScreen = () => {
                 }}
               />
             </View>
+            
             <CustomButton
               containerStyle={{ marginTop: 32 }}
               label="Login"
               onPress={() => {
                 handleSubmit(onSubmit)();
-                // router.navigate("/location-prompt");
               }}
-              // disabled={!isValid || isEmpty(dirtyFields)}
               loading={loading}
             />
             <Logo />
@@ -252,5 +270,12 @@ const styles = (color: ColorsType) =>
     },
     pass: {
       marginTop: 10,
+    },
+    errorText: {
+      color: "red",
+      fontSize: 12,
+      marginTop: 4,
+      marginLeft: 4,
+      fontFamily: fontFamily[400],
     },
   });

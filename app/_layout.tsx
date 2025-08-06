@@ -7,14 +7,16 @@ import ErrorBoundary from "@/components/error-boundary";
 import LoadingScreen from "@/components/loading";
 import NoInternetScreen from "@/components/noInternet";
 import { Inter } from "@/constants/fonts";
-import { RootState, store } from "@/store";
+import { store } from "@/store";
 import { authAction } from "@/store/login";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import NetInfo from "@react-native-community/netinfo";
-import { SafeAreaProvider } from "react-native-safe-area-context";
-import Toast from "react-native-toast-message";
-import { Provider, useDispatch, useSelector } from "react-redux";
-import ApplicationNavigator from "./Application";
+import { PaperProvider } from "react-native-paper";
+import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
+import { Provider, useDispatch } from "react-redux";
+import { CommonProvider } from "./contexts/CommonContext";
+import nativepapertheme from "./nativepapertheme";
+import ApplicationNavigator from "./navigators/Application";
 
 SplashScreen.preventAutoHideAsync();
 
@@ -33,8 +35,6 @@ function AppContent() {
     [Inter.SemiBold]: require("../assets/fonts/Inter/Inter-SemiBold.ttf"),
     [Inter.Thin]: require("../assets/fonts/Inter/Inter-Thin.ttf"),
   });
-
-  const { isInitialized } = useSelector((state: RootState) => state.login);
 
   const initApp = async () => {
     try {
@@ -75,23 +75,28 @@ function AppContent() {
 
   return (
     <>
-      <ApplicationNavigator />
-      <Toast position="bottom" bottomOffset={20} />
+      <CommonProvider>
+        <ApplicationNavigator />
+      </CommonProvider>
+      {/* <Toast position="bottom" bottomOffset={20} /> */}
     </>
   );
 }
 
 export default function RootLayout() {
-  // useLocationPermission();
   return (
-    <Provider store={store}>
-      <SafeAreaProvider>
-        <ErrorBoundary>
-          <Suspense fallback={<LoadingScreen />}>
-            <AppContent />
-          </Suspense>
-        </ErrorBoundary>
-      </SafeAreaProvider>
-    </Provider>
+    <SafeAreaProvider>
+      <SafeAreaView style={{ width: "100%", height: "100%" }}>
+        <Provider store={store}>
+          <PaperProvider theme={nativepapertheme}>
+            <ErrorBoundary>
+              <Suspense fallback={<LoadingScreen />}>
+                <AppContent />
+              </Suspense>
+            </ErrorBoundary>
+          </PaperProvider>
+        </Provider>
+      </SafeAreaView>
+    </SafeAreaProvider>
   );
 }

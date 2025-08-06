@@ -1,7 +1,8 @@
+import { navigate } from "@/app/navigators/Root";
+import { TRACKING } from "@/app/navigators/navigationConst";
 import { fontFamily } from "@/constants/fonts";
 import { colors } from "@/utils/constants/colors";
 import { Ionicons } from "@expo/vector-icons";
-import { router } from "expo-router";
 import React from "react";
 import { StyleSheet, TouchableOpacity, View } from "react-native";
 import StepIndicator from "react-native-step-indicator";
@@ -59,7 +60,7 @@ const StepTracker: React.FC<StepTracker> = ({
         {onGoing && (
           <TouchableOpacity
             style={styles.stepButton}
-            onPress={() => router.navigate({ pathname: "/tracking/tracking" })}
+            onPress={() => navigate(TRACKING)}
           >
             <Ionicons
               color={colors.white}
