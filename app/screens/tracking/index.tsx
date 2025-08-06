@@ -8,6 +8,7 @@ import { fontFamily } from "@/constants/fonts";
 import { RootState } from "@/store";
 import { postCaseUpdateApi } from "@/store/caseUpdates/CaseUpdatesApi";
 import { colors } from "@/utils/constants/colors";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as Location from "expo-location";
 import React, { useEffect, useMemo, useState } from "react";
 import { ScrollView, StyleSheet, TouchableOpacity, View } from "react-native";
@@ -131,11 +132,12 @@ const TrackingSection = () => {
     return -1;
   };
 
-  const handleTerminate = () => {
+  const handleTerminate = async () => {
+    const user = await AsyncStorage.getItem("userId");
     dispatch(
       postCaseUpdateApi({
         event: "case_terminated",
-        userId: "6853f0bf2fd5e36814c9cb5f",
+        userId: user,
         data: assignedCase,
       })
     );
@@ -266,10 +268,11 @@ const TrackingSection = () => {
           console.log(currentLabel, "Current Label");
 
           if (event && assignedCase) {
+            const user = AsyncStorage.getItem("userId");
             dispatch(
               postCaseUpdateApi({
                 event,
-                userId: "6853f0bf2fd5e36814c9cb5f",
+                userId: user,
                 data: assignedCase,
               })
             );
