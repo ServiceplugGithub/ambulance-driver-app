@@ -1,32 +1,34 @@
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { loginUserApi } from "./LoginApi";
 
-interface LoginState {
-  token: string;
-  user: null;
-  isLoggedIn: boolean;
-  rawResponse: any; // NEW
-}
 
-const initialState: LoginState = {
+const initialState: any = {
   token: "",
   user: null,
   isLoggedIn: false,
   rawResponse: null,
+  isAuthenticated: false,
+  isInitialized: false
 };
 
 const loginSlice = createSlice({
   name: "login",
   initialState,
   reducers: {
-    logout: (state) => {
-      state.token = "";
-      state.user = null;
-      state.isLoggedIn = false;
-      state.rawResponse = null;
-      AsyncStorage.removeItem("token");
-      AsyncStorage.removeItem("userId");
+    // logout: (state) => {
+    //   state.token = "";
+    //   state.user = "";
+    //   state.isLoggedIn = false;
+    //   state.rawResponse = null;
+    //   AsyncStorage.removeItem("token");
+    //   AsyncStorage.removeItem("userId");
+    // },
+    initialize: (state, action) => {
+      const { isAuthenticated, user } = action.payload;
+
+      state.isAuthenticated = isAuthenticated;
+      state.user = user;
+      state.isInitialized = true;
     },
   },
   extraReducers: (builder) => {
@@ -38,13 +40,10 @@ const loginSlice = createSlice({
         state.user = user;
         state.isLoggedIn = true;
         state.rawResponse = action.payload;
-
-        AsyncStorage.setItem("token", token);
-        AsyncStorage.setItem("userId", user._id);
       }
     );
   },
 });
 
-export const { logout } = loginSlice.actions;
+export const authAction = loginSlice.actions;
 export default loginSlice.reducer;

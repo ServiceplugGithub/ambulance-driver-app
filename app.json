@@ -9,7 +9,8 @@
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.ayush-jain-27.ambulancedriverapp"
     },
     "android": {
       "config": {
@@ -21,7 +22,8 @@
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "edgeToEdgeEnabled": true
+      "edgeToEdgeEnabled": true,
+      "package": "com.ayush_jain_27.ambulancedriverapp"
     },
     "web": {
       "bundler": "metro",
@@ -42,6 +44,12 @@
     ],
     "experiments": {
       "typedRoutes": true
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "3d8d77f6-1000-4680-a3ca-4de2b569e738"
+      }
     }
   }
 }

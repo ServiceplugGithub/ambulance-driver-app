@@ -1,13 +1,17 @@
+import axios from "@/utils/axios-instance";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { createAsyncThunk } from "@reduxjs/toolkit";
-import axios from "axios";
+
+const urls = {
+  getUserProfile: "/auth/profile",
+};
 
 export const getUserProfileApi = createAsyncThunk(
   "profile/getUserProfileApi",
   async (_, thunkApi) => {
     try {
-      const res = await axios.get(
-        "https://emsplug.com/api/auth/profile/6853f0bf2fd5e36814c9cb5f"
-      );
+      const userId = await AsyncStorage.getItem("userId");
+      const res = await axios.get(`${urls.getUserProfile}/${userId}`);
 
       if (Array.isArray(res.data) && res.data.length > 0) {
         return res.data[0];

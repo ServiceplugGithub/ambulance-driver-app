@@ -1,16 +1,18 @@
 import { colors } from "@/utils/constants/colors";
 import { Ionicons } from "@expo/vector-icons";
-import { router } from "expo-router";
+import { NavigationProp, useNavigation } from "@react-navigation/native";
 import React from "react";
 import { ImageStyle, StyleSheet, View } from "react-native";
 import { IconButton } from "react-native-paper";
 
-const BackButton: React.FC = () => {
+const BackButton = () => {
+  const navigation = useNavigation<NavigationProp<any>>();
+
   return (
     <View style={styles.container}>
       <View style={styles.innerContainer}>
         <IconButton
-          onPress={() => router.push("/home/home")}
+          onPress={() => navigation.goBack()}
           icon={() => (
             <Ionicons color={colors.white} name="arrow-back" size={30} />
           )}
@@ -29,7 +31,6 @@ export default BackButton;
 const styles = StyleSheet.create({
   container: {
     flexDirection: "row",
-    marginTop: 0,
     // marginHorizontal: 5,
     justifyContent: "space-between",
     backgroundColor: colors.secondary,
@@ -39,7 +40,7 @@ const styles = StyleSheet.create({
     marginRight: 15,
   } as ImageStyle,
   innerContainer: {
-    marginTop: 30,
+    marginTop: 8,
     flexDirection: "row",
     gap: 220,
   },

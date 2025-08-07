@@ -10,6 +10,8 @@ import { useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
 import { ActivityIndicator, Alert, StyleSheet, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { navigateAndSimpleReset } from "./navigators/Root";
+import { HOME } from "./navigators/navigationConst";
 
 const LocationPromptScreen = () => {
   const router = useRouter();
@@ -22,7 +24,7 @@ const LocationPromptScreen = () => {
       if (location && location.coords) {
         const locationString = JSON.stringify(location);
         await setStorage(localStorageKey.userLocationInfo, locationString);
-        router.replace("/home/home");
+        navigateAndSimpleReset(HOME);
       } else {
         throw new Error("Failed to get coordinates");
       }

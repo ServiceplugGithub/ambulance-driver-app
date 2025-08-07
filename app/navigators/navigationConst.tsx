@@ -1,0 +1,18 @@
+export const AUTH = {
+  SEND_OTP: 'SEND_OTP',
+  OTP_VERIFY: 'OTP_VERIFY',
+  NOT_FOUND_SCREEN: 'NOT_FOUND_SCREEN'
+};
+
+export const DASHBOARD = {
+  ROOT: 'HOME_TAB',
+  HOME: 'HOME',
+  PLUS: 'PLUS',
+  MENU: 'MENU',
+  POST_REQUIREMENT: 'POST_REQUIREMENT',
+};
+
+export const PROFILE = 'PROFILE';
+export const LOCATION_PROMPT = 'LOCATION_PROMPT';
+export const HOME = 'HOME';
+export const TRACKING = 'TRACKING';
