@@ -248,7 +248,7 @@ const TrackingSection = () => {
                 handleTerminate();
                 setStepIndex(0);
                 setList(stepLabels[0]);
-                navigate(HOME)
+                navigate(HOME);
               }}
             >
               <View style={styles.button2}>
@@ -284,7 +284,7 @@ const TrackingSection = () => {
           if (currentLabel === "Finish Case") {
             setStepIndex(0);
             setList(stepLabels[0]);
-            navigate(HOME)
+            navigate(HOME);
           } else {
             setStepIndex((prev) => prev + 1);
             setList(stepLabels[stepIndex + 1]);
@@ -309,8 +309,9 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   profileSection: {
-    height: 100,
+    height: 50,
     backgroundColor: colors.secondary,
+    marginBottom: 25,
   },
   mapSection: {
     marginTop: 10,

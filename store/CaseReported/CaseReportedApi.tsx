@@ -3,7 +3,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { createAsyncThunk } from "@reduxjs/toolkit";
 
 const urls = {
-  getReportedCases: '/cases/reported-cases-driver'
+  getReportedCases: "/cases/reported-cases-driver",
 };
 
 export const getReportedCasesApi = createAsyncThunk(
@@ -12,15 +12,14 @@ export const getReportedCasesApi = createAsyncThunk(
     try {
       const token = await AsyncStorage.getItem("token");
       const userId = await AsyncStorage.getItem("userId");
+      // const userId = "6853f0bf2fd5e36814c9cb5f";
       if (!token) {
         return thunkAPI.rejectWithValue("No token found");
       }
 
-      const response = await axios.get(
-        `${urls.getReportedCases}/${userId}`,
-      );
-      
-      console.log(response.data)
+      const response = await axios.get(`${urls.getReportedCases}/${userId}`);
+
+      console.log(response.data);
 
       return response.data;
     } catch (error: any) {

@@ -5,7 +5,6 @@ import { colors } from "@/utils/constants/colors";
 import { Ionicons } from "@expo/vector-icons";
 import React from "react";
 import { StyleSheet, TouchableOpacity, View } from "react-native";
-import StepIndicator from "react-native-step-indicator";
 import AppText from "../AppText";
 
 interface StepTracker {
@@ -48,14 +47,14 @@ const StepTracker: React.FC<StepTracker> = ({
   return (
     <>
       <View style={styles.step}>
-        {onGoing && <AppText style={styles.stepText}>Ongoing Trip</AppText>}
+        {/* {onGoing && <AppText style={styles.stepText}>Ongoing Trip</AppText>} */}
         <View style={styles.contanier}>
-          <StepIndicator
+          {/* <StepIndicator
             customStyles={stepIndicatorStyles}
             currentPosition={currentStep}
             direction="horizontal"
             labels={labels}
-          />
+          /> */}
         </View>
         {onGoing && (
           <TouchableOpacity
@@ -90,7 +89,7 @@ const styles = StyleSheet.create({
     marginTop: 10,
     marginHorizontal: 10,
     borderRadius: 10,
-    elevation: 5,
+    // elevation: 5,
   },
   stepText: {
     paddingLeft: 10,
