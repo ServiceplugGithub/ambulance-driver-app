@@ -1,5 +1,5 @@
 import { useContext } from 'react';
-import { CommonContext } from '../contexts/CommonContext';
+import { CommonContext } from '../app/contexts/CommonContext';
 
 // ----------------------------------------------------------------------
 
