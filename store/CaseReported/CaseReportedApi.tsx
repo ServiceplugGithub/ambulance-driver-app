@@ -12,7 +12,6 @@ export const getReportedCasesApi = createAsyncThunk(
     try {
       const token = await AsyncStorage.getItem("token");
       const userId = await AsyncStorage.getItem("userId");
-      // const userId = "6853f0bf2fd5e36814c9cb5f";
       if (!token) {
         return thunkAPI.rejectWithValue("No token found");
       }

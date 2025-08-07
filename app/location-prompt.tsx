@@ -26,7 +26,6 @@ const LocationPromptScreen = () => {
         await setStorage(localStorageKey.userLocationInfo, locationString);
         navigateAndSimpleReset(HOME);
       } else {
-        console.log("saflkmw")
         throw new Error("Failed to get coordinates");
       }
     } catch (e) {

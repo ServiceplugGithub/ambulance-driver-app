@@ -16,8 +16,7 @@ import { createSocket } from "@/utils/socket/socket";
 import { getStorage } from "@/utils/storage";
 import { Ionicons } from "@expo/vector-icons";
 // import AsyncStorage from "@react-native-async-storage/async-storage";
-import { getReportedCasesApi } from "@/store/caseReported/CaseReportedApi";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import { getReportedCasesApi } from "@/store/CaseReported/CaseReportedApi";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { ScrollView, StyleSheet, Switch, View } from "react-native";
 import { IconButton } from "react-native-paper";
@@ -74,7 +73,6 @@ const Dashboard: React.FC<DashboardProps> = () => {
   const { cases, loading, error } = useSelector(
     (state: any) => state.reportedCases
   );
-  console.log(cases, "<====");
   const [stepTrackers, setStepTracker] = useState(false);
 
   const stepTracker = () => {
@@ -123,7 +121,6 @@ const Dashboard: React.FC<DashboardProps> = () => {
 
       newSocket.off("case_assigned");
       newSocket.on("case_assigned", (data) => {
-        console.log("CaseAssigned ======", data);
         if (!isMounted) return;
         setModalVisible(true);
         setModalData(data);
@@ -164,12 +161,12 @@ const Dashboard: React.FC<DashboardProps> = () => {
     updateStatus();
   }, [isEnabled]);
 
-  useEffect(() => {
-    const updateStatus = async () => {
-      const token = await AsyncStorage.getItem("token");
-    };
-    updateStatus();
-  }, []);
+  // useEffect(() => {
+  //   const updateStatus = async () => {
+  //     const token = await AsyncStorage.getItem("token");
+  //   };
+  //   updateStatus();
+  // }, []);
 
   const fullResponse = useSelector(
     (state: RootState) => state.login.rawResponse
@@ -179,7 +176,6 @@ const Dashboard: React.FC<DashboardProps> = () => {
     const fetchData = async () => {
       try {
         const locationString = await getStorage("user_location_info");
-        console.log(locationString, "asfdmwekl");
 
         if (typeof locationString === "string") {
           const location = JSON.parse(locationString);

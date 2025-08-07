@@ -1,3 +1,4 @@
+import useLocationGuard from "@/components/locationPermission";
 import { RootState } from "@/store";
 import {
   NavigationContainer,
@@ -22,6 +23,8 @@ const ApplicationNavigator: any = () => {
   const { isAuthenticated, isInitialized } = useSelector(
     (state: RootState) => state.login
   );
+
+  const { hasPermission, isGpsEnabled } = useLocationGuard(isAuthenticated);  
 
   if (!isInitialized) {
     return <SplashScreen />;
